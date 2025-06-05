@@ -1,0 +1,159 @@
+@use 'sass:map';
+@use 'sass:list';
+
+$font-main: Nunito, Helvetica, Arial, sans-serif !default;
+$font-accent: null !default;
+
+$base-font-size: 16px;
+$base-line-height-ratio: 1.5;
+
+$font-var-prefix: 'ff-';
+$color-var-prefix: 'clr-';
+$z-index-var-prefix: 'z-';
+
+$breakpoints: (
+  xs: 320px,
+  sm: 480px,
+  2sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  2xl: 1536px,
+  xxl: 1920px,
+) !default;
+
+$z-indexes: (
+  low: 10,
+  middle: 20,
+  modal: 40,
+  top: 50,
+  super-top: 60,
+) !default;
+
+// Colors with light and dark variants
+$colors-scheme: (
+  'primary': (
+    hsl(92, 57%, 54%),
+    hsl(92, 57%, 46%),
+  ),
+  'primary-foreground': (
+    hsl(0, 0%, 0%),
+    hsl(0, 0%, 0%),
+  ),
+  'secondary': (
+    hsl(189, 16%, 67%),
+    hsl(189, 16%, 33%),
+  ),
+  'secondary-foreground': (
+    hsl(0, 0%, 0%),
+    hsl(0, 0%, 100%),
+  ),
+  'accent': (
+    hsl(273, 57%, 64%),
+    hsl(273, 57%, 36%),
+  ),
+  'accent-foreground': (
+    hsl(0, 0%, 0%),
+    hsl(0, 0%, 100%),
+  ),
+  'success': (
+    hsl(119, 100%, 27%),
+    hsl(119, 100%, 27%),
+  ),
+  'success-foreground': (
+    hsl(0, 0%, 100%),
+    hsl(0, 0%, 100%),
+  ),
+  'info': (
+    hsl(193, 100%, 93%),
+    hsl(193, 100%, 93%),
+  ),
+  'info-foreground': (
+    hsl(0, 0%, 0%),
+    hsl(0, 0%, 0%),
+  ),
+  'warning': (
+    hsl(41, 100%, 68%),
+    hsl(41, 100%, 68%),
+  ),
+  'warning-foreground': (
+    hsl(0, 0%, 0%),
+    hsl(0, 0%, 0%),
+  ),
+  'danger': (
+    hsl(0, 58%, 51%),
+    hsl(0, 58%, 51%),
+  ),
+  'danger-foreground': (
+    hsl(0, 0%, 100%),
+    hsl(0, 0%, 100%),
+  ),
+  'background': (
+    hsl(204, 24%, 96%),
+    hsl(0, 0%, 0%),
+  ),
+  'foreground': (
+    hsl(0, 4%, 15%),
+    hsl(0, 0%, 99%),
+  ),
+  'popover': (
+    hsl(0, 0%, 100%),
+    hsl(0, 0%, 0%),
+  ),
+  'popover-foreground': (
+    hsl(0, 4%, 15%),
+    hsl(0, 0%, 99%),
+  ),
+  'muted': (
+    hsl(0 0.24% 96.06%),
+    hsl(0 0.01% 14.94%),
+  ),
+  'muted-foreground': (
+    hsl(0 0.01% 45.16%),
+    hsl(0 0.02% 63.02%),
+  ),
+  'card': (
+    hsl(0, 0%, 100%),
+    hsl(0, 0%, 0%),
+  ),
+  'card-foreground': (
+    hsl(0, 4%, 15%),
+    hsl(0, 0%, 99%),
+  ),
+  'border': (
+    hsl(0, 0%, 90%),
+    hsl(0, 0%, 84%),
+  ),
+  'input': (
+    hsl(0, 0%, 73%),
+    hsl(0, 0%, 90%),
+  ),
+  'ring': (
+    hsl(0, 0%, 80%),
+    hsl(0, 0%, 96%),
+  ),
+) !default;
+
+$theme-color-names: map.keys($colors-scheme);
+
+$theme-colors: (
+  'light': (),
+  'dark': (),
+) !default;
+
+@each $color-name, $colors in $colors-scheme {
+  $m1: map.set(
+    map.get($theme-colors, 'light'),
+    $color-name,
+    list.nth($colors, 1)
+  );
+  $m2: map.set(
+    map.get($theme-colors, 'dark'),
+    $color-name,
+    list.nth($colors, 2)
+  );
+  $light-scheme: map.set($theme-colors, 'light', $m1);
+  $dark-scheme: map.set($theme-colors, 'dark', $m2);
+  $theme-colors: map.deep-merge($theme-colors, $light-scheme);
+  $theme-colors: map.deep-merge($theme-colors, $dark-scheme);
+}

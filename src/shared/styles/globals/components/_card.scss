@@ -1,0 +1,26 @@
+@use '../tools' as t;
+
+@layer components.card {
+  .card {
+    padding-block: t.px-to-rem(10px);
+    padding-inline: t.px-to-rem(12px);
+    border: 1px solid var(t.get-color-var('border'));
+    border-radius: t.px-to-rem(8px);
+    color: var(t.get-color-var('card-foreground'));
+    background-color: var(t.get-color-var('card'));
+  }
+
+  .card__header {
+    margin-block-end: t.px-to-rem(20px);
+  }
+
+  .card__header_with-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card__title {
+    font-size: t.px-to-rem(20px);
+  }
+}

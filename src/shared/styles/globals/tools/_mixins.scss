@@ -1,0 +1,34 @@
+@use 'sass:map';
+@use '../settings' as s;
+@use 'functions' as f;
+
+@mixin text-size($px-fs) {
+  $lh-ratio: lh-ratio($px-fs);
+  font-size: $fs;
+  line-height: $lh-ratio;
+}
+
+@mixin screen($breakpoint-name: 'md', $range: 'up', $use-rem: true) {
+  @if not map.has-key(s.$breakpoints, $breakpoint-name) {
+    @error 'Invalid breakpoint name. Valid names: #{map.keys(s.$breakpoints)}';
+  }
+
+  $bp-px-value: map.get(s.$breakpoints, $breakpoint-name);
+  $breakpoint-value: if($use-rem, f.px-to-rem($bp-px-value), $bp-px-value);
+
+  @if $range == 'up' {
+    @media (width >= $breakpoint-value) {
+      @content;
+    }
+  } @else if $range == 'down' {
+    @media (width < $breakpoint-value) {
+      @content;
+    }
+  } @else if $range == 'only' {
+    @media (width = $breakpoint-value) {
+      @content;
+    }
+  } @else {
+    @error 'Invalid $range. Use "up", "down", or "only".';
+  }
+}

@@ -1,0 +1,45 @@
+@use '../settings' as s;
+@use '../tools' as t;
+
+@mixin color-vars($colors) {
+  @each $color-name, $color-value in $colors {
+    #{t.get-color-var($color-name)}: #{$color-value};
+  }
+}
+
+@layer elements {
+  :root {
+    --#{s.$font-var-prefix}main: #{s.$font-main};
+
+    // Setup z-index variables
+    @each $level, $z-index in s.$z-indexes {
+      #{t.get-z-var($level)}: #{$z-index};
+    }
+
+    // Setup color variables
+    @each $theme, $colors in s.$theme-colors {
+      @if $theme == 'dark' {
+        @media (prefers-color-scheme: dark) {
+          @include color-vars($colors);
+        }
+        // &:has(body[data-theme='dark']) {
+        //   @include color-vars($colors);
+        // }
+      } @else {
+        @include color-vars($colors);
+      }
+    }
+  }
+
+  body {
+    font-family: var(--ff-main);
+    background-color: var(t.get-color-var('background'));
+    color: var(t.get-color-var('foreground'));
+  }
+
+  button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+}

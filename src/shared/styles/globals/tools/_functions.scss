@@ -1,0 +1,54 @@
+@use 'sass:math';
+@use 'sass:list';
+@use 'sass:map';
+@use '../settings' as s;
+
+@function get-color-var($name) {
+  @if list.index(s.$theme-color-names, $name) == null {
+    @error "Color variable '#{$name}' does not exist in the theme colors. Available colors: #{s.$theme-color-names}";
+  }
+  @return --#{s.$color-var-prefix}#{$name};
+}
+
+@function get-z-var($name) {
+  @if not map.has-key(s.$z-indexes, $name) {
+    @error "z-index variable '#{$name}' does not exist. Available z-indexes: #{s.$z-indexes}";
+  }
+  @return --#{s.$z-index-var-prefix}#{$name};
+}
+
+///
+/// Returns a number without unit.
+///
+/// @param {Number} $value
+///
+/// @returns {Number} - 30px -> 30
+///
+@function strip-unit($value) {
+  @return math.div($value, ($value * 0 + 1));
+}
+
+@function px-to-rem($px-value) {
+  @if math.is-unitless($px-value) {
+    @return math.div($px-value, s.$base-font-size) * 1rem;
+  }
+
+  $units: math.unit($px-value);
+
+  @if $units == 'rem' {
+    @return $px-value;
+  }
+
+  @if $units != 'px' {
+    @error 'px-to-rem() expects a value in pixels (px). Received: #{$units}';
+  }
+
+  @return math.div(strip-unit($px-value), 16) * 1rem;
+}
+
+@function lh-ratio($px-font-size) {
+  @return math.div(
+    1 + (s.$base-line-height-ratio - 1) * s.$base-font-size,
+    $px-font-size
+  );
+}

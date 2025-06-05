@@ -1,27 +1,22 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue';
+import { HomePage } from '~/pages/home';
 </script>
 
 <template>
-  <div>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <HomePage />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+<style lang="scss">
+@use '@globals/tools' as t;
+
+#app {
+  padding-block: 20px;
+  display: grid;
+  grid-template-columns:
+    1fr [content-start] min(100% - 60px, t.px-to-rem(1024px))
+    [content-end] 1fr;
+  & > * {
+    grid-column: content;
+  }
 }
 </style>

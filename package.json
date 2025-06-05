@@ -9,16 +9,23 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.13"
+    "lucide-vue-next": "^0.511.0",
+    "radix-vue": "^1.9.17",
+    "vue": "^3.5.13",
+    "vue-currency-input": "^3.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
+    "@types/node": "^22.15.24",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
+    "eslint-import-resolver-typescript": "^4.4.2",
+    "eslint-plugin-import-x": "^4.15.0",
     "eslint-plugin-vue": "^10.1.0",
     "globals": "^16.2.0",
+    "sass-embedded": "^1.89.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.32.1",
     "vite": "^6.3.5",

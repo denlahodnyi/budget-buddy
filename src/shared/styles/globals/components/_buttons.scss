@@ -1,0 +1,68 @@
+@use 'sass:color';
+@use '../tools' as t;
+
+@layer components.buttons {
+  .btn-base {
+    height: t.px-to-rem(32px);
+    padding-block: t.px-to-rem(4px);
+    padding-inline: t.px-to-rem(8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: t.px-to-rem(6px);
+    border-radius: t.px-to-rem(6px);
+    font-weight: 500;
+    font-size: t.px-to-rem(14px);
+    line-height: t.lh-ratio(14px);
+    transition: all cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+    box-shadow: 0 1px 2px 0 hsl(0, 0%, 0%, 0.1);
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(t.get-color-var('ring'));
+    }
+  }
+
+  .btn {
+    --_bg: var(#{t.get-color-var('primary')});
+    --_color: var(#{t.get-color-var('primary-foreground')});
+
+    @extend .btn-base;
+    color: var(--_color);
+    background-color: var(--_bg);
+
+    &:hover {
+      background-color: color-mix(in hsl, var(--_bg), transparent 10%);
+    }
+  }
+
+  .btn[data-size='icon'] {
+    height: t.px-to-rem(32px);
+    width: t.px-to-rem(32px);
+  }
+
+  .btn[data-variant='ghost'] {
+    --_bg: var(#{t.get-color-var('accent')});
+    --_color: var(#{t.get-color-var('accent-foreground')});
+
+    background-color: transparent;
+    box-shadow: none;
+
+    &:hover {
+      background-color: color-mix(in hsl, var(--_bg), transparent 80%);
+    }
+  }
+
+  .btn[data-variant='outline'] {
+    --_bg: var(#{t.get-color-var('accent')});
+    --_color: var(#{t.get-color-var('accent-foreground')});
+
+    border: 1px solid var(#{t.get-color-var('border')});
+    background-color: transparent;
+
+    &:hover {
+      color: var(--_color);
+      background-color: color-mix(in hsl, var(--_bg), transparent 80%);
+    }
+  }
+}

@@ -1,0 +1,123 @@
+@use '../tools' as t;
+
+@layer components.form {
+  .input-base {
+    width: 100%;
+    height: t.px-to-rem(35px);
+    padding: 0 15px;
+    border: 1px solid var(t.get-color-var('input'));
+    border-radius: t.px-to-rem(4px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    transition: all cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+    box-shadow: 0 1px 2px 0 hsl(0, 0%, 0%, 0.1);
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(t.get-color-var('accent'));
+      box-shadow: 0 0 0 3px var(t.get-color-var('ring'));
+    }
+  }
+
+  .input {
+    @extend .input-base;
+  }
+
+  .label {
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .form-item {
+    display: grid;
+    gap: t.px-to-rem(8px);
+  }
+
+  .select__trigger {
+    @extend .input-base;
+    justify-content: space-between;
+    gap: 5px;
+    font-size: 13px;
+    line-height: 1;
+
+    &[data-placeholder] {
+      color: var(t.get-color-var('muted-foreground'));
+    }
+  }
+
+  .select__content {
+    width: var(--radix-select-trigger-width);
+    z-index: var(t.get-z-var('modal'));
+    overflow: hidden;
+    border-radius: 6px;
+    color: var(t.get-color-var('popover-foreground'));
+    background-color: var(t.get-color-var('popover'));
+    box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
+      0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+  }
+
+  .select__viewport {
+    padding: 5px;
+  }
+
+  .select__item {
+    --_bg: var(#{t.get-color-var('accent')});
+    --_color: var(#{t.get-color-var('accent-foreground')});
+
+    position: relative;
+    height: t.px-to-rem(25px);
+    padding: 0 35px 0 25px;
+    display: flex;
+    align-items: center;
+    border-radius: 3px;
+    font-size: t.px-to-rem(14px);
+    line-height: 1;
+    color: inherit;
+    user-select: none;
+
+    &[data-highlighted] {
+      outline: none;
+      background-color: color-mix(in hsl, var(--_bg), transparent 80%);
+      color: var(--_color);
+    }
+
+    &[data-disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  .select__label {
+    padding: 0 25px;
+    font-size: t.px-to-rem(12px);
+    line-height: t.lh-ratio(25px);
+    color: var(t.get-color-var('muted-foreground'));
+  }
+
+  .select__separator {
+    height: 1px;
+    background-color: var(t.get-color-var('muted-foreground'));
+    margin: 5px;
+  }
+
+  .select__item-indicator {
+    position: absolute;
+    left: 0;
+    width: 25px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .select__scroll-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 25px;
+    background-color: white;
+    background-color: var(t.get-color-var('muted-foreground'));
+    cursor: default;
+  }
+}

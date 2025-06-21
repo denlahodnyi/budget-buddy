@@ -7,7 +7,7 @@ import typescriptEslint from 'typescript-eslint';
 import { importX } from 'eslint-plugin-import-x';
 
 export default typescriptEslint.config(
-  { ignores: ['*.d.ts', '**/coverage', '**/dist'] },
+  { ignores: ['*.d.ts', '**/coverage', '**/dist', 'vite.config.ts'] },
   {
     extends: [
       eslint.configs.recommended,
@@ -48,6 +48,7 @@ export default typescriptEslint.config(
           distinctGroup: false,
         },
       ],
+      'vue/multi-word-component-names': ['off'],
     },
   },
   eslintConfigPrettier

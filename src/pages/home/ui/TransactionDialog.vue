@@ -22,10 +22,17 @@ import {
 import { XIcon, ChevronDownIcon, CheckIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-import { store } from './store';
+import { useCreateTransaction } from '~/features/transaction/create';
+import { useCurrentUserId } from '~/entities/user';
+import { useCurrentWalletId } from '~/entities/wallet';
+import type { Transaction } from '~/entities/transaction';
+
+const userId = useCurrentUserId();
+const walletId = useCurrentWalletId();
+const createTransaction = useCreateTransaction();
 
 const formState = ref<{
-  transactionType: 'income' | 'expense';
+  transactionType: Transaction['type'];
   amount: number;
 }>({
   transactionType: 'income',
@@ -34,9 +41,14 @@ const formState = ref<{
 
 const saveTransaction = (e: Event) => {
   e.preventDefault();
-  console.log('submit', formState.value);
   const { transactionType: type, amount } = formState.value;
-  store.transactions.push({ date: new Date(), type, amount });
+  createTransaction({
+    amount,
+    type,
+    userId: userId.value,
+    walletId: walletId.value,
+    createdAt: new Date().toISOString(),
+  });
 };
 </script>
 
@@ -58,7 +70,6 @@ const saveTransaction = (e: Event) => {
             <XIcon />
           </DialogClose>
         </div>
-        <!-- <TransactionForm /> -->
 
         <form class="form" @submit="saveTransaction">
           <div class="form-item">

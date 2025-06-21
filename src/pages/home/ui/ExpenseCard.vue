@@ -1,13 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { useCurrentWalletId, useTotalExpenseByWallet } from '~/entities/wallet';
 
-import { store } from './store';
-
-const expense = computed(() =>
-  store.transactions
-    .filter((t) => t.type === 'expense')
-    .reduce((prev, t) => prev + t.amount, 0)
-);
+const walletId = useCurrentWalletId();
+const expense = useTotalExpenseByWallet(walletId);
 </script>
 
 <template>
@@ -15,6 +10,6 @@ const expense = computed(() =>
     <div class="card__header">
       <h2 class="card__title">Expense</h2>
     </div>
-    <p>{{ -expense }}</p>
+    <p>{{ expense.formattedTotalExpense }}</p>
   </section>
 </template>

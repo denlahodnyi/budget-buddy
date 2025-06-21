@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { PlusIcon } from 'lucide-vue-next';
 
+import { useTransactions } from '~/entities/transaction';
+import { useCurrentWalletId } from '~/entities/wallet';
 import TransactionDialog from './TransactionDialog.vue';
-import { store } from './store';
+import Transaction from './Transaction.vue';
+
+const walletId = useCurrentWalletId();
+const ids = useTransactions(walletId);
 </script>
 
 <template>
@@ -14,15 +19,7 @@ import { store } from './store';
       </TransactionDialog>
     </div>
     <div class="transactions-list">
-      <section
-        v-for="(t, i) of store.transactions"
-        :key="i"
-        class="transaction-item"
-      >
-        <p>{{ t.type }}</p>
-        <p>{{ `${t.type === 'expense' ? '-' : ''}${t.amount}` }}</p>
-        <p>{{ t.date.toLocaleString() }}</p>
-      </section>
+      <Transaction v-for="id in ids" :id="id" :key="id" />
     </div>
   </section>
 </template>
@@ -32,17 +29,5 @@ import { store } from './store';
 
 .transactions-list > :not(:last-child) {
   margin-block-end: t.px-to-rem(12px);
-}
-
-.transaction-item {
-  padding: 6px 8px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  border: 1px solid
-    color-mix(in hsl, var(t.get-color-var('border')), transparent 50%);
-  border-radius: t.px-to-rem(8px);
-  color: inherit;
-  background-color: transparent;
 }
 </style>

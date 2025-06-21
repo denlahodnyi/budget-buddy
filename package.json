@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "dependencies": {
     "lucide-vue-next": "^0.511.0",
     "radix-vue": "^1.9.17",
+    "tinybase": "^6.2.1",
     "vue": "^3.5.13",
     "vue-currency-input": "^3.2.1"
   },
@@ -29,6 +31,7 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.32.1",
     "vite": "^6.3.5",
+    "vitest": "^3.2.4",
     "vue-tsc": "^2.2.8"
   }
 }

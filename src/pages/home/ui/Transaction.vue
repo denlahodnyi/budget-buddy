@@ -10,7 +10,9 @@ import {
 import { ref } from 'vue';
 
 import { useTransaction } from '~/entities/transaction';
+import { deleteTransaction } from '~/features/transaction/delete';
 import TransactionDialog from './TransactionDialog.vue';
+import TransactionDelAlert from './TransactionDelAlert.vue';
 
 interface TransactionProps {
   id: string;
@@ -20,12 +22,16 @@ const props = defineProps<TransactionProps>();
 const t = useTransaction(() => props.id);
 const isActionsDropdownOpen = ref(false);
 const isEditDialogOpen = ref(false);
+const isAlertOpen = ref(false);
 
 function handleDialogOpenChange(open: boolean) {
   isEditDialogOpen.value = open;
   if (!open) {
     isActionsDropdownOpen.value = false;
   }
+}
+function handleAlertOpenChange(open: boolean) {
+  isAlertOpen.value = open;
 }
 function handleDropdownOpenChange(open: boolean) {
   isActionsDropdownOpen.value = open;
@@ -65,9 +71,14 @@ function handleDropdownOpenChange(open: boolean) {
                 <PencilIcon :size="16" />Edit
               </DropdownMenuItem>
             </TransactionDialog>
-            <DropdownMenuItem class="dropdown__item" disabled>
-              <TrashIcon :size="16" />Delete
-            </DropdownMenuItem>
+            <TransactionDelAlert
+              @update:open="handleAlertOpenChange"
+              @confirm="deleteTransaction(props.id)"
+            >
+              <DropdownMenuItem class="dropdown__item" @select.prevent>
+                <TrashIcon :size="16" />Delete
+              </DropdownMenuItem>
+            </TransactionDelAlert>
           </DropdownMenuContent>
         </DropdownMenuPortal>
       </DropdownMenuTrigger>

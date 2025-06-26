@@ -25,15 +25,22 @@
 
   .btn {
     --_bg: var(#{t.get-color-var('primary')});
-    --_hover-bg: var(#{t.get-color-var('primary')});
     --_color: var(#{t.get-color-var('primary-foreground')});
+    --_hover-bg: var(#{t.get-color-var('primary')});
+    --_hover-color: var(#{t.get-color-var('primary-foreground')});
+    --_hover-transparency: 10%;
 
     @extend .btn-base;
     color: var(--_color);
     background-color: var(--_bg);
 
     &:hover {
-      background-color: color-mix(in hsl, var(--_hover-bg), transparent 10%);
+      color: var(--_hover-color);
+      background-color: color-mix(
+        in hsl,
+        var(--_hover-bg),
+        transparent var(--_hover-transparency)
+      );
     }
   }
 
@@ -43,30 +50,29 @@
   }
 
   .btn[data-variant='ghost'] {
+    --_bg: transparent;
+    --_color: var(#{t.get-color-var('foreground')});
     --_hover-bg: var(#{t.get-color-var('accent')});
     --_hover-color: var(#{t.get-color-var('accent-foreground')});
+    --_hover-transparency: 0%;
 
-    background-color: transparent;
     box-shadow: none;
-
-    &:hover {
-      color: var(--_hover-color);
-      // background-color: color-mix(in hsl, var(--_hover-bg), transparent 10%);
-      background-color: var(--_hover-bg);
-    }
   }
 
   .btn[data-variant='outline'] {
+    --_bg: transparent;
+    --_color: var(#{t.get-color-var('foreground')});
     --_hover-bg: var(#{t.get-color-var('accent')});
     --_hover-color: var(#{t.get-color-var('accent-foreground')});
+    --_hover-transparency: 0%;
 
     border: 1px solid var(#{t.get-color-var('border')});
-    background-color: transparent;
+  }
 
-    &:hover {
-      color: var(--_hover-color);
-      // background-color: color-mix(in hsl, var(--_hover-bg), transparent 10%);
-      background-color: var(--_hover-bg);
-    }
+  .btn[data-variant='destructive'] {
+    --_bg: var(#{t.get-color-var('danger')});
+    --_color: var(#{t.get-color-var('danger-foreground')});
+    --_hover-bg: var(#{t.get-color-var('danger')});
+    --_hover-color: var(#{t.get-color-var('danger-foreground')});
   }
 }

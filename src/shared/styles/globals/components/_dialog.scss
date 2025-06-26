@@ -25,21 +25,26 @@
       hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
     transform: translate(-50%, -50%);
     animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    & > :not(:first-child) {
+      margin-block-start: t.px-to-rem(20px);
+    }
   }
 
   .dialog__header {
-    margin-block-end: t.px-to-rem(20px);
+    // margin-block-end: t.px-to-rem(20px);
   }
 
   .dialog__title {
-    font-weight: 500;
+    font-weight: 600;
     color: var(t.get-color-var('popover-foreground'));
     font-size: t.px-to-rem(18px);
   }
 
   .dialog__description {
-    color: var(t.get-color-var('popover-foreground'));
+    color: var(t.get-color-var('muted-foreground'));
     font-size: t.px-to-rem(16px);
+    line-height: t.lh-ratio(16px);
   }
 
   .dialog__close {

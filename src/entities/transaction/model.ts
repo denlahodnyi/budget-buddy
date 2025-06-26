@@ -1,5 +1,16 @@
 import type { Row } from 'tinybase/with-schemas';
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
+import {
+  object,
+  type Describe,
+  enums,
+  string,
+  nonempty,
+  size,
+  optional,
+  type Infer,
+  trimmed,
+} from 'superstruct';
 
 import { useResultRowIds, useRow } from '~/shared/lib/tiny-base';
 import {
@@ -8,13 +19,37 @@ import {
   type storeTablesSchema,
   queries,
 } from '~/store';
+import { coerceToNumber, positive } from '~/shared/lib/superstruct';
 import { formatCurrency } from '../wallet/lib';
 
-export interface Transaction
-  extends Row<typeof storeTablesSchema, 'transactions'> {
+export const DESCRIPTION_MAX_LENGTH = 200;
+
+type StoredTransaction = Row<typeof storeTablesSchema, 'transactions'>;
+
+export interface Transaction extends StoredTransaction {
   type: 'income' | 'expense';
   formattedAmount: string;
 }
+
+export const CreatedTransactionScheme: Describe<
+  Omit<Transaction, 'formattedAmount'> & {
+    userId: NonNullable<Transaction['userId']>;
+    walletId: NonNullable<Transaction['walletId']>;
+  }
+> = object({
+  type: enums(['income', 'expense']),
+  amount: positive(coerceToNumber()),
+  createdAt: nonempty(trimmed(string())),
+  userId: nonempty(trimmed(string())),
+  walletId: nonempty(trimmed(string())),
+  description: optional(size(string(), 0, DESCRIPTION_MAX_LENGTH)),
+});
+
+export type CreatedTransaction = Infer<typeof CreatedTransactionScheme>;
+
+export type CreatedTransactionErrors = {
+  [Key in keyof CreatedTransaction]?: string;
+};
 
 export function useTransactions(walletId: MaybeRefOrGetter<string>) {
   const { queryId, queries: q } = setWalletTransactionsQuery(

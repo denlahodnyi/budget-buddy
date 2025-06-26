@@ -46,9 +46,45 @@
   @return math.div(strip-unit($px-value), 16) * 1rem;
 }
 
+///
+/// Returns dynamic line-height based on font-size.
+///
 @function lh-ratio($px-font-size) {
-  @return math.div(
-    1 + (s.$base-line-height-ratio - 1) * s.$base-font-size,
-    $px-font-size
-  );
+  @return harmonic-line-height($px-font-size);
+}
+
+// Uses natural logarithm to create smooth scaling curves
+@function logarithmic-line-height(
+  $font-size,
+  $min-ratio: 1.2,
+  $max-ratio: 1.8
+) {
+  $size: if(math.is-unitless($font-size), $font-size, $font-size / 1px);
+
+  // Natural log creates smooth curve from max-ratio (small text) to min-ratio (large text)
+  $log-factor: math.div(
+    math.log($size + 1),
+    math.log(72 + 1)
+  ); // 72px as reference large size
+  $ratio: $max-ratio - (($max-ratio - $min-ratio) * $log-factor);
+
+  @return math.max($min-ratio, $ratio);
+}
+
+$perfect-fourth: 1.333;
+
+// Based on musical harmony ratios for typographic rhythm
+@function harmonic-line-height(
+  $px-font-size,
+  $px-base-size: s.$base-font-size,
+  $base-line-height: s.$base-line-height-ratio,
+  $scale-ratio: $perfect-fourth
+) {
+  $size-ratio: math.div($px-font-size, $px-base-size);
+  // Find position in modular scale
+  $scale-position: math.div(math.log($size-ratio), math.log($scale-ratio));
+  // Apply inverse harmonic progression for line-height
+  $harmonic-factor: math.div(1, (1 + ($scale-position * 0.15)));
+
+  @return $base-line-height * $harmonic-factor;
 }

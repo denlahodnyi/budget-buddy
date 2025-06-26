@@ -1,16 +1,16 @@
-import { reactive } from 'vue';
+// import { reactive } from 'vue';
 
 // import * as some from './new_store';
-export interface Transaction {
-  type: 'expense' | 'income';
-  amount: number;
-  date: Date;
-}
+// export interface Transaction {
+//   type: 'expense' | 'income';
+//   amount: number;
+//   date: Date;
+// }
 
-interface Store {
-  transactions: Transaction[];
-}
+// interface Store {
+//   transactions: Transaction[];
+// }
 
-export const store = reactive<Store>({
-  transactions: [],
-});
+// export const store = reactive<Store>({
+//   transactions: [],
+// });

@@ -28,7 +28,7 @@ export const storeTablesSchema = {
     userId: { type: 'string' }, // Reference to user
     walletId: { type: 'string' }, // Reference to wallet
     // TODO: add category field
-    // TODO: add description field
+    description: { type: 'string' },
   },
 } satisfies TablesSchema;
 

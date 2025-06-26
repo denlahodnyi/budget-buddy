@@ -53,7 +53,7 @@ $colors-scheme: (
     hsl(273, 57%, 36%),
   ),
   'accent-foreground': (
-    hsl(0, 0%, 0%),
+    hsl(0, 0%, 100%),
     hsl(0, 0%, 100%),
   ),
   'success': (
@@ -90,7 +90,7 @@ $colors-scheme: (
   ),
   'background': (
     hsl(204, 24%, 96%),
-    hsl(0, 0%, 0%),
+    hsl(0, 0.02%, 3.94%),
   ),
   'foreground': (
     hsl(0, 4%, 15%),
@@ -98,7 +98,7 @@ $colors-scheme: (
   ),
   'popover': (
     hsl(0, 0%, 100%),
-    hsl(0, 0%, 0%),
+    hsl(0, 0.01%, 14.94%),
   ),
   'popover-foreground': (
     hsl(0, 4%, 15%),
@@ -114,7 +114,7 @@ $colors-scheme: (
   ),
   'card': (
     hsl(0, 0%, 100%),
-    hsl(0, 0%, 0%),
+    hsl(0, 0.02%, 9.06%),
   ),
   'card-foreground': (
     hsl(0, 4%, 15%),
@@ -122,15 +122,15 @@ $colors-scheme: (
   ),
   'border': (
     hsl(0, 0%, 90%),
-    hsl(0, 0%, 84%),
+    hsla(0, 0%, 100%, 10%),
   ),
   'input': (
     hsl(0, 0%, 73%),
-    hsl(0, 0%, 90%),
+    hsla(0, 0%, 100%, 15%),
   ),
   'ring': (
     hsl(0, 0%, 80%),
-    hsl(0, 0%, 96%),
+    hsl(0, 0%, 45%),
   ),
 ) !default;
 

@@ -25,6 +25,7 @@
 
   .btn {
     --_bg: var(#{t.get-color-var('primary')});
+    --_hover-bg: var(#{t.get-color-var('primary')});
     --_color: var(#{t.get-color-var('primary-foreground')});
 
     @extend .btn-base;
@@ -32,7 +33,7 @@
     background-color: var(--_bg);
 
     &:hover {
-      background-color: color-mix(in hsl, var(--_bg), transparent 10%);
+      background-color: color-mix(in hsl, var(--_hover-bg), transparent 10%);
     }
   }
 
@@ -42,27 +43,30 @@
   }
 
   .btn[data-variant='ghost'] {
-    --_bg: var(#{t.get-color-var('accent')});
-    --_color: var(#{t.get-color-var('accent-foreground')});
+    --_hover-bg: var(#{t.get-color-var('accent')});
+    --_hover-color: var(#{t.get-color-var('accent-foreground')});
 
     background-color: transparent;
     box-shadow: none;
 
     &:hover {
-      background-color: color-mix(in hsl, var(--_bg), transparent 80%);
+      color: var(--_hover-color);
+      // background-color: color-mix(in hsl, var(--_hover-bg), transparent 10%);
+      background-color: var(--_hover-bg);
     }
   }
 
   .btn[data-variant='outline'] {
-    --_bg: var(#{t.get-color-var('accent')});
-    --_color: var(#{t.get-color-var('accent-foreground')});
+    --_hover-bg: var(#{t.get-color-var('accent')});
+    --_hover-color: var(#{t.get-color-var('accent-foreground')});
 
     border: 1px solid var(#{t.get-color-var('border')});
     background-color: transparent;
 
     &:hover {
-      color: var(--_color);
-      background-color: color-mix(in hsl, var(--_bg), transparent 80%);
+      color: var(--_hover-color);
+      // background-color: color-mix(in hsl, var(--_hover-bg), transparent 10%);
+      background-color: var(--_hover-bg);
     }
   }
 }

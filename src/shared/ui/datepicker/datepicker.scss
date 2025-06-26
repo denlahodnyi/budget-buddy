@@ -1,0 +1,164 @@
+@use '@globals/tools' as t;
+
+$body-padding: 12px;
+
+.datepicker {
+  position: relative;
+}
+
+.datepicker__input {
+  &[data-p-has-e-icon='true'] {
+    padding-inline-end: t.px-to-rem(26px);
+  }
+}
+
+.datepicker__icon-wrapper {
+  --_icon-size: var(--icon-size, 24px);
+
+  position: absolute;
+  top: 50%;
+  inset-inline-end: t.px-to-rem(6px);
+  margin-block-start: calc(-1 * var(--_icon-size) / 2);
+  z-index: 1;
+  font-size: var(--_icon-size);
+}
+
+.datepicker__icon {
+  width: 1em;
+  height: 1em;
+}
+
+.calendar-popover {
+  border: 1px solid var(t.get-color-var('border'));
+  border-radius: t.px-to-rem(8px);
+  color: var(t.get-color-var('popover-foreground'));
+  background-color: var(t.get-color-var('popover'));
+  box-shadow: hsla(206, 22%, 7%, 0.35) 0px 10px 38px -10px,
+    hsla(206, 22%, 7%, 0.2) 0px 10px 20px -15px;
+}
+
+.calendar-container {
+  padding: t.px-to-rem($body-padding);
+
+  &:has(+ .calendar__time-picker) {
+    padding-block-end: 0;
+  }
+}
+
+.calendar__nav-btn {
+  & [data-pc-section='label'] {
+    display: none;
+  }
+}
+
+.calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.px-to-rem(20px);
+}
+
+.calendar__header {
+  padding-block-end: t.px-to-rem(8px);
+  border-bottom: 1px solid var(t.get-color-var('border'));
+}
+
+.calendar__day-cell {
+  padding: t.px-to-rem(2px);
+}
+
+.calendar__day {
+  width: t.px-to-rem(30px);
+  height: t.px-to-rem(30px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+
+  &[data-p*='disabled'] {
+    opacity: 0.5;
+  }
+
+  &[data-p*='today'] {
+    border: 1px solid var(t.get-color-var('border'));
+  }
+
+  &[data-p*='selected'] {
+    border: 1px solid var(t.get-color-var('accent'));
+  }
+}
+
+.calendar__month-view {
+  padding: t.px-to-rem($body-padding);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: t.px-to-rem(6px);
+  & .calendar__month {
+    min-width: t.px-to-rem(60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: t.px-to-rem(2px);
+
+    &[data-p-selected='true'] {
+      border: 1px solid var(t.get-color-var('accent'));
+    }
+  }
+}
+
+.calendar__year-view {
+  padding: t.px-to-rem($body-padding);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: t.px-to-rem(6px);
+  & .calendar__year {
+    min-width: t.px-to-rem(60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: t.px-to-rem(2px);
+
+    &[data-p-selected='true'] {
+      border: 1px solid var(t.get-color-var('accent'));
+    }
+  }
+}
+
+.calendar__time-picker {
+  padding: t.px-to-rem($body-padding);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: t.px-to-rem(10px);
+}
+
+.calendar__hour-picker,
+.calendar__minute-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calendar__day,
+.calendar__month-view .calendar__month,
+.calendar__year-view .calendar__year {
+  transition: all cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+  cursor: pointer;
+
+  &:hover:not([data-p*='disabled'], [data-p*='today']),
+  &:focus-visible:not([data-p*='disabled'], [data-p*='today']) {
+    background-color: var(t.get-color-var('accent'));
+    color: var(t.get-color-var('accent-foreground'));
+  }
+}
+
+.calendar__footer {
+  margin-inline: t.px-to-rem($body-padding);
+  padding-block: t.px-to-rem(4px);
+  border-top: 1px solid var(t.get-color-var('border'));
+  display: flex;
+  align-items: center;
+  & > * {
+    flex: 1;
+  }
+}

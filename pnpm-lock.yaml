@@ -11,9 +11,15 @@ importers:
       lucide-vue-next:
         specifier: ^0.511.0
         version: 0.511.0(vue@3.5.15(typescript@5.8.3))
+      primevue:
+        specifier: ^4.3.5
+        version: 4.3.5(vue@3.5.15(typescript@5.8.3))
       radix-vue:
         specifier: ^1.9.17
         version: 1.9.17(vue@3.5.15(typescript@5.8.3))
+      superstruct:
+        specifier: ^2.0.2
+        version: 2.0.2
       tinybase:
         specifier: ^6.2.1
         version: 6.2.1
@@ -347,6 +353,27 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@primeuix/styled@0.6.4':
+    resolution: {integrity: sha512-7ePLwqazLV0x269YlPMeE4wtQKT0NScY2/gEin0/96krTiGiElmlzKMMbH69bVApm/sfen5DZGuCEEwPiBJJ5g==}
+    engines: {node: '>=12.11.0'}
+
+  '@primeuix/styles@1.1.2':
+    resolution: {integrity: sha512-KSwyuxNhl2bVv9eBr6SQHyRUtg93mCL7xqfQPoEzr7tgKfvIHJdGcMSSFxYyEXQv4EmSF6JxVkCWprKFAfnR5Q==}
+
+  '@primeuix/utils@0.5.4':
+    resolution: {integrity: sha512-8LggV3Jz59pymHQD10e/u63z/GemQ22RBeu2Gb1eJgBYVwn1iOb82LR+daeAc/LxrXCC5pHnftnCmnZO6vInLA==}
+    engines: {node: '>=12.11.0'}
+
+  '@primevue/core@4.3.5':
+    resolution: {integrity: sha512-YBlSr/EbXsnsTOyfgqmbrJQ7AI5EThaeGZvfDFjPIIEpokEK+Q32++9xPn3MH8rcM8zPsfMeBOWi4/OJkOqG4w==}
+    engines: {node: '>=12.11.0'}
+    peerDependencies:
+      vue: ^3.5.0
+
+  '@primevue/icons@4.3.5':
+    resolution: {integrity: sha512-+V8XG6MEvczw3Ufz7+ABSSCaVdFCYKRHvVDmXpS65AUeQTDEqmJz3xx2UiYYdASA6Gb2yIKdVztTcRjHFtiAnw==}
+    engines: {node: '>=12.11.0'}
 
   '@rollup/rollup-android-arm-eabi@4.41.1':
     resolution: {integrity: sha512-NELNvyEWZ6R9QMkiytB4/L4zSEaBC03KIXEghptLGLZWJ6VPrL63ooZQCOnlx36aQPGhzuOMwDerC1Eb2VmrLw==}
@@ -1216,6 +1243,10 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
+  primevue@4.3.5:
+    resolution: {integrity: sha512-KYjLrf7W96qVOFdX2nyap5IrJIEF8qEfLaHpMPw+H3SCd7zV6uiIrOYBNvovk677rhjBGpSjEbxTFY/K+i/DMA==}
+    engines: {node: '>=12.11.0'}
+
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
@@ -1410,6 +1441,10 @@ packages:
 
   strip-literal@3.0.0:
     resolution: {integrity: sha512-TcccoMhJOM3OebGhSBEmp3UZ2SfDMZUEBdRA/9ynfLi8yYajyWX3JiXArcJt4Umh4vISpspkQIY8ZZoCqjbviA==}
+
+  superstruct@2.0.2:
+    resolution: {integrity: sha512-uV+TFRZdXsqXTL2pRvujROjdZQ4RAlBUS5BTh9IGm+jTqQntYThciG/qu57Gs69yjnVUSqdxF9YLmSnpupBW9A==}
+    engines: {node: '>=14.0.0'}
 
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
@@ -1902,6 +1937,29 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
+
+  '@primeuix/styled@0.6.4':
+    dependencies:
+      '@primeuix/utils': 0.5.4
+
+  '@primeuix/styles@1.1.2':
+    dependencies:
+      '@primeuix/styled': 0.6.4
+
+  '@primeuix/utils@0.5.4': {}
+
+  '@primevue/core@4.3.5(vue@3.5.15(typescript@5.8.3))':
+    dependencies:
+      '@primeuix/styled': 0.6.4
+      '@primeuix/utils': 0.5.4
+      vue: 3.5.15(typescript@5.8.3)
+
+  '@primevue/icons@4.3.5(vue@3.5.15(typescript@5.8.3))':
+    dependencies:
+      '@primeuix/utils': 0.5.4
+      '@primevue/core': 4.3.5(vue@3.5.15(typescript@5.8.3))
+    transitivePeerDependencies:
+      - vue
 
   '@rollup/rollup-android-arm-eabi@4.41.1':
     optional: true
@@ -2758,6 +2816,16 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
+  primevue@4.3.5(vue@3.5.15(typescript@5.8.3)):
+    dependencies:
+      '@primeuix/styled': 0.6.4
+      '@primeuix/styles': 1.1.2
+      '@primeuix/utils': 0.5.4
+      '@primevue/core': 4.3.5(vue@3.5.15(typescript@5.8.3))
+      '@primevue/icons': 4.3.5(vue@3.5.15(typescript@5.8.3))
+    transitivePeerDependencies:
+      - vue
+
   punycode@2.3.1: {}
 
   queue-microtask@1.2.3: {}
@@ -2934,6 +3002,8 @@ snapshots:
   strip-literal@3.0.0:
     dependencies:
       js-tokens: 9.0.1
+
+  superstruct@2.0.2: {}
 
   supports-color@7.2.0:
     dependencies:

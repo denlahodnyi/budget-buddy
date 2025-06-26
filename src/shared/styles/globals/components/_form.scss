@@ -26,9 +26,29 @@
     background-color: transparent;
   }
 
+  .textarea {
+    @extend .input-base;
+    height: auto;
+    padding-block: 4px;
+    resize: vertical;
+    background-color: transparent;
+  }
+
   .label {
+    width: max-content;
     font-weight: 500;
     line-height: 1;
+  }
+
+  .helper-text {
+    font-size: t.px-to-rem(14px);
+    font-weight: 300;
+    line-height: t.lh-ratio(14px);
+    color: var(t.get-color-var('muted-foreground'));
+
+    &[data-variant='error'] {
+      color: var(t.get-color-var('danger'));
+    }
   }
 
   .form-item {
@@ -40,8 +60,6 @@
     @extend .input-base;
     justify-content: space-between;
     gap: 5px;
-    font-size: 13px;
-    line-height: 1;
 
     &[data-placeholder] {
       color: var(t.get-color-var('muted-foreground'));
@@ -80,7 +98,8 @@
 
     &[data-highlighted] {
       outline: none;
-      background-color: color-mix(in hsl, var(--_bg), transparent 80%);
+      // background-color: color-mix(in hsl, var(--_bg), transparent 80%);
+      background-color: var(t.get-color-var('accent'));
       color: var(--_color);
     }
 

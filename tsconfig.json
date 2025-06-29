@@ -1,7 +1,11 @@
 {
+  "compilerOptions": {
+    "module": "esnext"
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.cypress.json" }
   ]
 }

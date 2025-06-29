@@ -5,10 +5,14 @@ import eslintPluginVue from 'eslint-plugin-vue';
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
 import { importX } from 'eslint-plugin-import-x';
+import pluginCypress from 'eslint-plugin-cypress';
 
 export default typescriptEslint.config(
-  { ignores: ['*.d.ts', '**/coverage', '**/dist', 'vite.config.ts'] },
   {
+    ignores: ['*.d.ts', '**/coverage', '**/dist', 'vite.config.ts'],
+  },
+  {
+    name: 'app-config',
     extends: [
       eslint.configs.recommended,
       importX.flatConfigs.recommended,
@@ -49,6 +53,23 @@ export default typescriptEslint.config(
         },
       ],
       'vue/multi-word-component-names': ['off'],
+    },
+  },
+  {
+    name: 'cypress-config',
+    extends: [pluginCypress.configs.recommended],
+    files: ['cypress.config.ts', 'cypress/**/*.ts'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      parserOptions: {
+        parser: typescriptEslint.parser,
+        project: 'tsconfig.cypress.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
   eslintConfigPrettier

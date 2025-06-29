@@ -18,8 +18,8 @@ const ids = useTransactions(walletId);
         <button class="btn"><PlusIcon :size="20" />Add new</button>
       </TransactionDialog>
     </div>
-    <div class="transactions-list">
-      <Transaction v-for="id in ids" :id="id" :key="id" />
+    <div role="list" class="transactions-list">
+      <Transaction v-for="id in ids" :id="id" :key="id" role="listitem" />
     </div>
   </section>
 </template>

@@ -39,7 +39,7 @@ function handleDropdownOpenChange(open: boolean) {
 </script>
 
 <template>
-  <section class="transaction">
+  <section class="transaction" :data-testid="props.id">
     <p>{{ t.type }}</p>
     <p>{{ t.formattedAmount }}</p>
     <p>{{ new Date(t.createdAt).toLocaleDateString() }}</p>

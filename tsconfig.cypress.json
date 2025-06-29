@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.cypress.tsbuildinfo",
+    "target": "es5",
+    "lib": ["es5", "dom"],
+    "sourceMap": true,
+    "noEmit": true,
+    "strict": true,
+    "types": ["cypress", "node", "@testing-library/cypress"]
+  },
+  "include": ["cypress.config.ts", "cypress/**/*.ts"]
+}

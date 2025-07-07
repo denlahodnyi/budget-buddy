@@ -26,15 +26,12 @@ export function useResultRowIdsListener<
   const { queries, queryId, listener } = args;
 
   watch(
-    [queryId],
+    [() => toValue(queryId)],
     ([newQueryId]) => {
       let listenerId: Id;
 
       if (queries) {
-        listenerId = queries.addResultRowIdsListener(
-          toValue(newQueryId),
-          listener
-        );
+        listenerId = queries.addResultRowIdsListener(newQueryId, listener);
       }
 
       onWatcherCleanup(() => {
@@ -51,6 +48,14 @@ export function useResultRowIds<TSchemas extends OptionalSchemas>(args: {
 }) {
   const { queryId, queries } = args;
   const ids = shallowRef(queries.getResultRowIds(toValue(queryId)));
+
+  watch(
+    () => toValue(queryId),
+    (newQueryId) => {
+      ids.value = queries.getResultRowIds(newQueryId);
+    }
+  );
+
   useResultRowIdsListener({
     queries,
     queryId,
@@ -71,14 +76,14 @@ export function useResultRowListener<TSchemas extends OptionalSchemas>(args: {
   const { queries, queryId, rowId, listener } = args;
 
   watch(
-    [queryId, rowId],
+    [() => toValue(queryId), () => toValue(rowId)],
     ([newQueryId, newRowId]) => {
       let listenerId: Id;
 
       if (queries) {
         listenerId = queries.addResultRowListener(
-          toValue(newQueryId),
-          toValue(newRowId),
+          newQueryId,
+          newRowId,
           listener
         );
       }
@@ -103,6 +108,14 @@ export function useResultRow<
   const row = shallowRef(
     queries.getResultRow(toValue(queryId), toValue(rowId)) as TResultRow
   );
+
+  watch(
+    [() => toValue(queryId), () => toValue(rowId)],
+    ([newQueryId, newRowId]) => {
+      row.value = queries.getResultRow(newQueryId, newRowId);
+    }
+  );
+
   useResultRowListener({
     queries,
     queryId,

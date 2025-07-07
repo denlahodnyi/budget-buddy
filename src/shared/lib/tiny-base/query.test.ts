@@ -79,6 +79,25 @@ describe('The useResultRowIds composable', () => {
     store.setRow('pets', 'jack', { species: 'dog' }); // this one triggers the query
     expect(resultRowIds.value).toEqual(['fido', 'garry', 'jack']);
   });
+
+  it('returns new ids on query id change', async () => {
+    const store = createTestStore();
+    const { queries } = createTestStoreQueries(store);
+    const queryId = ref('dogSpeciesQuery');
+
+    const resultRowIds = useResultRowIds({
+      queryId,
+      queries,
+    });
+
+    expect(resultRowIds.value).toEqual(['fido']);
+    store.setRow('pets', 'garry', { species: 'dog' });
+    expect(resultRowIds.value).toEqual(['fido', 'garry']);
+    store.setRow('pets', 'felix', { species: 'cat' });
+    queryId.value = 'catSpeciesQuery';
+    await flushPromises();
+    expect(resultRowIds.value).toEqual(['felix']);
+  });
 });
 
 describe('The useResultRowListener composable', () => {
@@ -164,5 +183,40 @@ describe('The useResultRow composable', () => {
     expect(resultRow.value).toEqual({});
     store.setCell('pets', 'fido', 'color', 'brown'); // this one doesn't trigger the query
     expect(resultRow.value).toEqual({});
+  });
+
+  it('returns updated row when queryId or rowId changes', async () => {
+    const store = createTestStore();
+    const { queries } = createTestStoreQueries(store);
+    const queryId = ref('fullDog');
+    const rowId = ref('fido');
+    queries.setQueryDefinition('fullDog', 'pets', ({ select, where }) => {
+      select('species');
+      select('color');
+      where('species', 'dog');
+    });
+    queries.setQueryDefinition('fullCat', 'pets', ({ select, where }) => {
+      select('species');
+      select('color');
+      where('species', 'cat');
+    });
+
+    const resultRow = useResultRow({
+      queryId,
+      rowId,
+      queries,
+    });
+
+    store.setRow('pets', 'felix', { species: 'dog', color: 'red' });
+    rowId.value = 'felix';
+    await flushPromises();
+    expect(resultRow.value).toEqual({ species: 'dog', color: 'red' });
+    queryId.value = 'fullCat';
+    await flushPromises();
+    expect(resultRow.value).toEqual({});
+    store.setRow('pets', 'garry', { species: 'cat', color: 'green' });
+    rowId.value = 'garry';
+    await flushPromises();
+    expect(resultRow.value).toEqual({ species: 'cat', color: 'green' });
   });
 });

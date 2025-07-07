@@ -10,6 +10,7 @@ export function createTestStore() {
     .setTables({
       pets: { fido: { species: 'dog' } },
       species: { dog: { price: 5 } },
+      owners: { 0: { name: 'Den' }, 1: { name: 'Alice' } },
     })
     .setValues({ name: 'John', age: 30 }) as unknown as Store<OptionalSchemas>;
 }

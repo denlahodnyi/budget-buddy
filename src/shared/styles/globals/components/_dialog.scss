@@ -5,7 +5,7 @@
     position: fixed;
     inset: 0;
     z-index: var(t.get-z-var('modal'));
-    background-color: hsl(0, 0%, 0%, 20%);
+    background-color: hsl(0, 0%, 0%, 50%);
     animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 

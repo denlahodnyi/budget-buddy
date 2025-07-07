@@ -28,16 +28,12 @@ export function useValueListener<TSchemas extends OptionalSchemas>(args: {
   const { valueId, listener, mutator, store } = args;
 
   watch(
-    [valueId, mutator],
+    [() => toValue(valueId), () => toValue(mutator)],
     ([newValueId, newMutator]) => {
       let listenerId: Id;
 
       if (store) {
-        listenerId = store.addValueListener(
-          toValue(newValueId as MaybeRefOrGetter<IdOrNull>),
-          listener,
-          toValue(newMutator as MaybeRefOrGetter<boolean>)
-        );
+        listenerId = store.addValueListener(newValueId, listener, newMutator);
       }
 
       onWatcherCleanup(() => {
@@ -54,6 +50,14 @@ export function useValue<TSchemas extends OptionalSchemas>(args: {
 }) {
   const { valueId, store } = args;
   const value = shallowRef(store.getValue(toValue(valueId)));
+
+  watch(
+    () => toValue(valueId),
+    (newValueId) => {
+      value.value = store.getValue(newValueId);
+    }
+  );
+
   useValueListener({
     valueId,
     listener: () => {

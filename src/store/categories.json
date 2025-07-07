@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Housing",
+    "type": "expense",
+    "color": "orange_1",
+    "icon": "house",
+    "children": [
+      {
+        "name": "Rent / Mortgage",
+        "type": "expense",
+        "color": "orange_1",
+        "icon": "house"
+      },
+      {
+        "name": "Utilities (Electricity, Gas, Water)",
+        "type": "expense",
+        "color": "violet_1",
+        "icon": "water"
+      },
+      {
+        "name": "Internet & Phone",
+        "type": "expense",
+        "color": "pink",
+        "icon": "phone"
+      },
+      {
+        "name": "Maintenance / Repairs",
+        "type": "expense",
+        "color": "brown",
+        "icon": "tool"
+      }
+    ]
+  },
+  {
+    "name": "Entertainment",
+    "type": "expense",
+    "color": "lime",
+    "icon": "party",
+    "children": [
+      {
+        "name": "Movies / Games",
+        "type": "expense",
+        "color": "lime",
+        "icon": "gamepad"
+      },
+      {
+        "name": "Events / Concerts",
+        "type": "expense",
+        "color": "lime",
+        "icon": "cocktail"
+      }
+    ]
+  },
+  {
+    "name": "Transportation",
+    "type": "expense",
+    "color": "blue_1",
+    "icon": "car"
+  },
+  {
+    "name": "Food & Dining",
+    "type": "expense",
+    "color": "yellow",
+    "icon": "pizza"
+  },
+  {
+    "name": "Shopping",
+    "type": "expense",
+    "color": "red",
+    "icon": "shopping"
+  },
+  {
+    "name": "Health & Wellness",
+    "type": "expense",
+    "color": "green",
+    "icon": "doctor"
+  },
+  {
+    "name": "Travel",
+    "type": "expense",
+    "color": "pink",
+    "icon": "island"
+  },
+  {
+    "name": "Other / Miscellaneous",
+    "type": "expense",
+    "color": "blue",
+    "icon": "other"
+  },
+  {
+    "name": "Salary",
+    "type": "income",
+    "color": "green",
+    "icon": "income"
+  },
+  {
+    "name": "Investments / Dividends",
+    "type": "income",
+    "color": "lime",
+    "icon": "bank"
+  },
+  {
+    "name": "Gifts",
+    "type": "income",
+    "color": "violet_1",
+    "icon": "gift"
+  },
+  {
+    "name": "Other Income",
+    "type": "income",
+    "color": "orange_1",
+    "icon": "other"
+  }
+]

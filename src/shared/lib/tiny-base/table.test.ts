@@ -63,4 +63,20 @@ describe('The useTable composable', () => {
       felix: { species: 'cat' },
     });
   });
+
+  it('returns new table when tableId changes', async () => {
+    const store = createTestStore();
+    const tableId = ref('pets');
+    const testTable = useTable({
+      store,
+      tableId,
+    });
+
+    tableId.value = 'owners';
+    await flushPromises();
+    expect(testTable.value).toEqual({
+      '0': { name: 'Den' },
+      '1': { name: 'Alice' },
+    });
+  });
 });

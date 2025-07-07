@@ -53,4 +53,18 @@ describe('The useValue composable', () => {
     store.setValue('name', 'Alice');
     expect(testValue.value).toBe('Alice');
   });
+
+  it('returns updated value when valueId changes', async () => {
+    const store = createTestStore();
+    const valueId = ref('name');
+    const testValue = useValue({
+      store,
+      valueId,
+    });
+
+    store.setValue('city', 'London');
+    valueId.value = 'city';
+    await flushPromises();
+    expect(testValue.value).toBe('London');
+  });
 });

@@ -126,6 +126,16 @@ describe('The useRowIds composable', () => {
     await flushPromises();
     expect(ids.value).toEqual(['fido', 'felix']);
   });
+
+  it('returns new row ids when tableId changes', async () => {
+    const store = createTestStore();
+    const tableId = ref('pets');
+    const ids = useRowIds({ store, tableId });
+
+    tableId.value = 'owners';
+    await flushPromises();
+    expect(ids.value).toEqual(['0', '1']);
+  });
 });
 
 describe('The useRow composable', () => {
@@ -150,6 +160,26 @@ describe('The useRow composable', () => {
 
     store.setCell('pets', 'fido', 'species', 'cat');
     expect(row.value).toEqual({ species: 'cat' });
+  });
+
+  it('returns new row when tableId or rowId changes', async () => {
+    const store = createTestStore();
+    const tableId = ref('pets');
+    const rowId = ref('fido');
+    const row = useRow({
+      store,
+      tableId,
+      rowId,
+    });
+
+    store.setCell('pets', 'felix', 'species', 'cat');
+    rowId.value = 'felix';
+    await flushPromises();
+    expect(row.value).toEqual({ species: 'cat' });
+    tableId.value = 'owners';
+    rowId.value = '1';
+    await flushPromises();
+    expect(row.value).toEqual({ name: 'Alice' });
   });
 });
 

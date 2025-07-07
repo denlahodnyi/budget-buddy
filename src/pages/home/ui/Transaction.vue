@@ -7,10 +7,11 @@ import {
   DropdownMenuItem,
   DropdownMenuContent,
 } from 'radix-vue';
-import { ref } from 'vue';
+import { ref, toRef } from 'vue';
 
 import { useTransaction } from '~/entities/transaction';
 import { deleteTransaction } from '~/features/transaction/delete';
+import { CATEGORY_ICONS } from '~/store';
 import TransactionDialog from './TransactionDialog.vue';
 import TransactionDelAlert from './TransactionDelAlert.vue';
 
@@ -19,7 +20,8 @@ interface TransactionProps {
 }
 
 const props = defineProps<TransactionProps>();
-const t = useTransaction(() => props.id);
+
+const t = useTransaction(toRef(() => props.id));
 const isActionsDropdownOpen = ref(false);
 const isEditDialogOpen = ref(false);
 const isAlertOpen = ref(false);
@@ -40,9 +42,30 @@ function handleDropdownOpenChange(open: boolean) {
 
 <template>
   <section class="transaction" :data-testid="props.id">
-    <p>{{ t.type }}</p>
-    <p>{{ t.formattedAmount }}</p>
-    <p>{{ new Date(t.createdAt).toLocaleDateString() }}</p>
+    <div
+      :style="{ backgroundColor: t.category.color }"
+      class="transaction__color-indicator"
+    />
+    <component
+      :is="CATEGORY_ICONS[t.category.icon]"
+      class="transaction__icon"
+    />
+    <div>
+      <p class="transaction__name">{{ t.category.name }}</p>
+      <p class="transaction__date">
+        {{ new Date(t.createdAt).toLocaleDateString() }}
+      </p>
+    </div>
+    <p
+      :class="[
+        'transaction__amount',
+        t.type === 'income'
+          ? 'transaction__amount--positive'
+          : 'transaction__amount--negative',
+      ]"
+    >
+      {{ t.formattedAmount }}
+    </p>
 
     <DropdownMenuRoot
       class="dropdown"
@@ -90,10 +113,10 @@ function handleDropdownOpenChange(open: boolean) {
 @use '@globals/tools' as t;
 
 .transaction {
-  padding: 6px 8px;
+  padding: 8px 10px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  grid-template-columns: min-content max-content repeat(2, 1fr) max-content;
+  gap: 20px;
   align-items: center;
   border: 1px solid
     color-mix(in hsl, var(t.get-color-var('border')), transparent 50%);
@@ -105,5 +128,43 @@ function handleDropdownOpenChange(open: boolean) {
 .transaction > :last-child {
   justify-self: end;
   border-radius: 100%;
+}
+
+.transaction__color-indicator {
+  width: 6px;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.transaction__icon {
+  width: t.px-to-rem(34px);
+  height: t.px-to-rem(34px);
+}
+
+.transaction__name {
+  font-size: t.px-to-rem(20px);
+  font-weight: 500;
+}
+
+.transaction__date {
+  color: var(t.get-color-var('muted-foreground'));
+}
+
+.transaction__amount {
+  width: max-content;
+  padding: 4px 8px;
+  justify-self: flex-end;
+  font-size: t.px-to-rem(18px);
+  font-weight: 500;
+  border-radius: 6px;
+
+  &--positive {
+    background-color: var(t.get-color-var('success'));
+    color: var(t.get-color-var('success-foreground'));
+  }
+  &--negative {
+    background-color: var(t.get-color-var('danger'));
+    color: var(t.get-color-var('danger-foreground'));
+  }
 }
 </style>

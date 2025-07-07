@@ -1,6 +1,7 @@
 import { createQueries, createStore } from 'tinybase/with-schemas';
 
 import { storeTablesSchema, storeValuesSchema } from './store-config';
+import categoriesData from './categories.json';
 
 const store = createStore()
   .setTablesSchema(storeTablesSchema)
@@ -45,8 +46,22 @@ store.setTables({
   },
 });
 
+categoriesData.forEach((cat) => {
+  const { children, ...rest } = cat;
+  const rowId = store.addRow('categories', { ...rest, userId: '0' });
+  if (children) {
+    children.forEach((ch) => {
+      store.addRow('categories', { ...ch, parentId: rowId, userId: '0' });
+    });
+  }
+});
+
 store.addTablesListener((store) => {
   console.log('STORE CHANGED: ', store.getTables());
+});
+
+queries.addQueryIdsListener((queries) => {
+  console.log('QUERIES IDS', queries.getQueryIds());
 });
 
 export { store, queries };

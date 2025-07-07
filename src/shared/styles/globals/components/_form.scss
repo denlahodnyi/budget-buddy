@@ -1,6 +1,18 @@
 @use '../tools' as t;
 
 @layer components.form {
+  .form {
+    :where(& > :not(:first-child)) {
+      margin-block-start: 12px;
+    }
+  }
+
+  .form__footer {
+    margin-block-start: 30px;
+    display: flex;
+    gap: 20px;
+  }
+
   .input-base {
     width: 100%;
     height: t.px-to-rem(35px);
@@ -13,6 +25,7 @@
     color: inherit;
     transition: all cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
     box-shadow: 0 1px 2px 0 hsl(0, 0%, 0%, 0.1);
+    background-color: transparent;
 
     &:focus-visible {
       outline: none;
@@ -23,7 +36,6 @@
 
   .input {
     @extend .input-base;
-    background-color: transparent;
   }
 
   .textarea {
@@ -54,6 +66,7 @@
   .form-item {
     display: grid;
     gap: t.px-to-rem(8px);
+    justify-items: flex-start;
   }
 
   .select__trigger {
@@ -139,5 +152,90 @@
     background-color: white;
     background-color: var(t.get-color-var('muted-foreground'));
     cursor: default;
+  }
+
+  .combobox {
+    --_trigger-icon-size: var(--trigger-icon-size, #{t.px-to-rem(24px)});
+    --_cancel-icon-size: var(--cancel-icon-size, #{t.px-to-rem(18px)});
+    position: relative;
+    width: 100%;
+    color: inherit;
+    &:not(:has(.combobox__cancel)) {
+      --_cancel-icon-size: 0px;
+    }
+  }
+
+  .combobox__anchor {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+  }
+
+  .combobox__input {
+    @extend .input-base;
+    padding-inline-end: calc(
+      var(--_trigger-icon-size) + #{t.px-to-rem(6px)} + var(--_cancel-icon-size)
+    );
+
+    &[data-placeholder] {
+      color: var(t.get-color-var('muted-foreground'));
+    }
+  }
+  .combobox__icon {
+    position: absolute;
+    color: inherit;
+    & > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+  .combobox__trigger {
+    inset-inline-end: t.px-to-rem(6px);
+    inset-block-start: 50%;
+    margin-block-start: calc(-1 * var(--_trigger-icon-size) / 2);
+    padding: 0;
+    font-size: var(--_trigger-icon-size);
+  }
+  .combobox__cancel {
+    inset-inline-end: calc(var(--_trigger-icon-size) + 10px);
+    inset-block-start: 50%;
+    margin-block-start: calc(-1 * var(--_cancel-icon-size) / 2);
+    padding: 0;
+    font-size: var(--_cancel-icon-size);
+    cursor: pointer;
+  }
+  .combobox__content {
+    @extend .select__content;
+    width: var(--radix-combobox-trigger-width);
+  }
+  .combobox__viewport {
+    @extend .select__viewport;
+  }
+  .combobox__empty {
+    text-align: center;
+    color: var(t.get-color-var('muted-foreground'));
+  }
+  .combobox__item {
+    @extend .select__item;
+    min-height: t.px-to-rem(25px);
+    padding-block: 12px;
+  }
+  .combobox__item-indicator {
+    @extend .select__item-indicator;
+  }
+  .combobox__group-label {
+    height: t.px-to-rem(25px);
+    padding-inline-start: 12px;
+    display: flex;
+    align-items: center;
+    font-size: t.px-to-rem(16px);
+    line-height: 1;
+    color: var(t.get-color-var('muted-foreground'));
+  }
+  .combobox__separator {
+    height: 1px;
+    margin: 5px;
+    background-color: var(t.get-color-var('border'));
   }
 }

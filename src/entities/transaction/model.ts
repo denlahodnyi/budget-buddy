@@ -21,6 +21,7 @@ import {
 } from '~/store';
 import { coerceToNumber, positive } from '~/shared/lib/superstruct';
 import { formatCurrency } from '../wallet/lib';
+import type { Category } from '../category';
 
 export const DESCRIPTION_MAX_LENGTH = 200;
 
@@ -28,13 +29,16 @@ type StoredTransaction = Row<typeof storeTablesSchema, 'transactions'>;
 
 export interface Transaction extends StoredTransaction {
   type: 'income' | 'expense';
+  categoryId: string;
+  category: Category;
   formattedAmount: string;
 }
 
 export const CreatedTransactionScheme: Describe<
-  Omit<Transaction, 'formattedAmount'> & {
+  Omit<Transaction, 'formattedAmount' | 'category'> & {
     userId: NonNullable<Transaction['userId']>;
     walletId: NonNullable<Transaction['walletId']>;
+    categoryId: NonNullable<Transaction['categoryId']>;
   }
 > = object({
   type: enums(['income', 'expense']),
@@ -42,6 +46,7 @@ export const CreatedTransactionScheme: Describe<
   createdAt: nonempty(trimmed(string())),
   userId: nonempty(trimmed(string())),
   walletId: nonempty(trimmed(string())),
+  categoryId: nonempty(trimmed(string())),
   description: optional(size(string(), 0, DESCRIPTION_MAX_LENGTH)),
 });
 
@@ -65,10 +70,17 @@ export function useTransaction(transactionId: MaybeRefOrGetter<string>) {
     tableId: () => 'transactions',
     rowId: transactionId,
   });
+  const category = useRow({
+    store,
+    tableId: () => 'categories',
+    rowId: () => (t.value as Transaction).categoryId,
+  });
   return computed<Transaction>(() => {
     return {
       ...t.value,
       type: t.value.type as Transaction['type'],
+      categoryId: t.value.categoryId as Transaction['categoryId'],
+      category: category.value as Category,
       formattedAmount: formatCurrency(
         (t.value.type as Transaction['type']) === 'income'
           ? t.value.amount

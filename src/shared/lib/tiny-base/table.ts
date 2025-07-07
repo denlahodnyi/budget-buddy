@@ -28,18 +28,12 @@ export function useTableListener<TSchemas extends OptionalSchemas>(args: {
   const { tableId, listener, store, mutator } = args;
 
   watch(
-    [tableId, mutator],
+    [() => toValue(tableId), () => toValue(mutator)],
     ([newTableId, newMutator]) => {
       let listenerId: Id;
 
       if (store) {
-        listenerId = store.addTableListener(
-          toValue(
-            newTableId as MaybeRefOrGetter<TableIdFromSchema<TSchemas[0]>>
-          ),
-          listener,
-          toValue(newMutator as MaybeRefOrGetter<boolean>)
-        );
+        listenerId = store.addTableListener(newTableId, listener, newMutator);
       }
 
       onWatcherCleanup(() => {
@@ -57,6 +51,13 @@ export function useTable<
   const { store, tableId } = args;
   const table = shallowRef<Table<TSchemas[0], TTableId>>(
     store.getTable(toValue(tableId))
+  );
+
+  watch(
+    () => toValue(tableId),
+    (newTableId) => {
+      table.value = store.getTable(newTableId);
+    }
   );
 
   useTableListener({

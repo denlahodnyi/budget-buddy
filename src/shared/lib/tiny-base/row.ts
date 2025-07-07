@@ -87,20 +87,12 @@ export function useRowIdsListener<TSchemas extends OptionalSchemas>(args: {
   const { tableId, listener, mutator, store } = args;
 
   watch(
-    [tableId, mutator],
+    [() => toValue(tableId), () => toValue(mutator)],
     ([newTableId, newMutator]) => {
       let listenerId: Id;
 
       if (store) {
-        listenerId = store.addRowIdsListener(
-          toValue(
-            newTableId as MaybeRefOrGetter<TableIdFromSchema<
-              TSchemas[0]
-            > | null>
-          ),
-          listener,
-          toValue(newMutator as MaybeRefOrGetter<boolean>)
-        );
+        listenerId = store.addRowIdsListener(newTableId, listener, newMutator);
       }
 
       onWatcherCleanup(() => {
@@ -117,6 +109,13 @@ export function useRowIds<TSchemas extends OptionalSchemas>(args: {
 }) {
   const { tableId, store } = args;
   const ids = shallowRef(store.getRowIds(toValue(tableId)));
+
+  watch(
+    () => toValue(tableId),
+    (newTableId) => {
+      ids.value = store.getRowIds(newTableId);
+    }
+  );
 
   useRowIdsListener({
     tableId,
@@ -144,20 +143,16 @@ export function useRowListener<TSchemas extends OptionalSchemas>(args: {
   const { store, tableId, rowId, listener, mutator } = args;
 
   watch(
-    [tableId, rowId, mutator],
+    [() => toValue(tableId), () => toValue(rowId), () => toValue(mutator)],
     ([newTableId, newRowId, newMutator]) => {
       let listenerId: Id;
 
       if (store) {
         listenerId = store.addRowListener(
-          toValue(
-            newTableId as MaybeRefOrGetter<TableIdFromSchema<
-              TSchemas[0]
-            > | null>
-          ),
-          toValue(newRowId as MaybeRefOrGetter<IdOrNull>),
+          newTableId,
+          newRowId,
           listener,
-          toValue(newMutator as MaybeRefOrGetter<boolean>)
+          newMutator
         );
       }
 
@@ -181,6 +176,14 @@ export function useRow<
   const row = shallowRef<Row<TSchemas[0], TTableId>>(
     store.getRow(toValue(tableId), toValue(rowId))
   );
+
+  watch(
+    [() => toValue(tableId), () => toValue(rowId)],
+    ([newTableId, newRowId]) => {
+      row.value = store.getRow(newTableId, newRowId);
+    }
+  );
+
   useRowListener({
     tableId,
     rowId,

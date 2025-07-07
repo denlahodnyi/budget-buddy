@@ -1,11 +1,21 @@
-import type { Queries } from 'tinybase/with-schemas';
+import type { Queries, Select } from 'tinybase/with-schemas';
 
 import type { QueryResult } from './util-types';
-import type { storeTablesSchema, storeValuesSchema } from './store-config';
+import { storeTablesSchema, type storeValuesSchema } from './store-config';
 
 type QueriesWithSchemas = Queries<
   [typeof storeTablesSchema, typeof storeValuesSchema]
 >;
+
+function selectAll<TTableId extends keyof typeof storeTablesSchema>(
+  select: Select<typeof storeTablesSchema, TTableId>,
+  tableId: TTableId
+) {
+  Object.keys(storeTablesSchema[tableId]).forEach((field) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    select(field as any)
+  );
+}
 
 export function setWalletTransactionsQuery(
   queries: QueriesWithSchemas,
@@ -16,11 +26,7 @@ export function setWalletTransactionsQuery(
     queryId,
     'transactions',
     ({ select, where, join }) => {
-      select('type');
-      select('amount');
-      select('userId');
-      select('walletId');
-      select('createdAt');
+      selectAll(select, 'transactions');
       where('walletId', walletId);
       join('wallets', 'walletId').as('wallet');
     }
@@ -91,6 +97,7 @@ export function setTotalIncomeByWalletQuery(
 
   return { queries: queriesReference, queryId };
 }
+
 const totalExpenseByWalletQueryFields = {
   totalExpenseField: 'totalExpense',
 } as const;
@@ -119,4 +126,107 @@ export function setTotalExpenseByWalletQuery(
   );
 
   return { queries: queriesReference, queryId };
+}
+
+export function setParentOnlyCategoriesQuery(
+  queries: QueriesWithSchemas,
+  userId: string,
+  categoryType?: string // TODO: set better type
+) {
+  const queryId = ['parentCategories', userId, categoryType].join('_');
+  const queryReference = queries.setQueryDefinition(
+    queryId,
+    'categories',
+    ({ select, where }) => {
+      selectAll(select, 'categories');
+      where(
+        (getCell) =>
+          getCell('userId') === userId &&
+          !getCell('parentId') &&
+          (categoryType ? getCell('type') === categoryType : true)
+      );
+    }
+  );
+
+  return { queries: queryReference, queryId };
+}
+
+export function setSubCategoriesQuery(
+  queries: QueriesWithSchemas,
+  parentCategoryId: string
+) {
+  const queryId = ['subCategories', parentCategoryId].join('_');
+  const queryReference = queries.setQueryDefinition(
+    queryId,
+    'categories',
+    ({ select, where }) => {
+      selectAll(select, 'categories');
+      where('parentId', parentCategoryId);
+    }
+  );
+
+  return { queries: queryReference, queryId };
+}
+
+export function setFullCategoriesQuery(
+  queries: QueriesWithSchemas,
+  userId: string,
+  categoryType?: string, // TODO: set better type
+  onlyParents?: boolean
+) {
+  const queryId = [
+    'fullCategories',
+    userId,
+    categoryType,
+    onlyParents ? 'parentsOnly' : '',
+  ].join('_');
+  const queryReference = queries.setQueryDefinition(
+    queryId,
+    'categories',
+    ({ select, where }) => {
+      selectAll(select, 'categories');
+      where(
+        (getCell) =>
+          getCell('userId') === userId &&
+          (onlyParents ? !getCell('parentId') : true) &&
+          (categoryType ? getCell('type') === categoryType : true)
+      );
+    }
+  );
+
+  return { queries: queryReference, queryId };
+}
+
+const transactionsCountPerCatQueryFields = {
+  idField: 'id',
+  totalField: 'total',
+} as const;
+
+export type TransactionsPerCatQueryResult = QueryResult<
+  typeof transactionsCountPerCatQueryFields,
+  { idField: string | undefined; totalField: number | undefined }
+>;
+
+export function setTransactionsCountPerCategoryQuery(
+  queries: QueriesWithSchemas,
+  categoryIds: string[]
+) {
+  const queryId = ['transactionsCountPerCat', ...categoryIds].join('_');
+  const queryReference = queries.setQueryDefinition(
+    queryId,
+    'transactions',
+    ({ select, group, where }) => {
+      select('categoryId').as(transactionsCountPerCatQueryFields.idField);
+      select('categoryId');
+      group('categoryId', 'count').as(
+        transactionsCountPerCatQueryFields.totalField
+      );
+      where((getCell) => {
+        const catId = getCell('categoryId');
+        return catId ? categoryIds.includes(catId) : false;
+      });
+    }
+  );
+
+  return { queries: queryReference, queryId };
 }

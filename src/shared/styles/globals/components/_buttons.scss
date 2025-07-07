@@ -23,16 +23,23 @@
     }
   }
 
-  .btn {
+  :where(.btn) {
     --_bg: var(#{t.get-color-var('primary')});
     --_color: var(#{t.get-color-var('primary-foreground')});
     --_hover-bg: var(#{t.get-color-var('primary')});
     --_hover-color: var(#{t.get-color-var('primary-foreground')});
     --_hover-transparency: 10%;
+    --_disabled-opacity: 0.5;
 
     @extend .btn-base;
     color: var(--_color);
     background-color: var(--_bg);
+
+    &:disabled {
+      --_hover-transparency: 0%;
+      opacity: var(--_disabled-opacity);
+      cursor: default;
+    }
 
     &:hover {
       color: var(--_hover-color);
@@ -44,12 +51,12 @@
     }
   }
 
-  .btn[data-size='icon'] {
+  :where(.btn[data-size='icon']) {
     height: t.px-to-rem(32px);
     width: t.px-to-rem(32px);
   }
 
-  .btn[data-variant='ghost'] {
+  :where(.btn[data-variant='ghost']) {
     --_bg: transparent;
     --_color: var(#{t.get-color-var('foreground')});
     --_hover-bg: var(#{t.get-color-var('accent')});
@@ -59,7 +66,7 @@
     box-shadow: none;
   }
 
-  .btn[data-variant='outline'] {
+  :where(.btn[data-variant='outline']) {
     --_bg: transparent;
     --_color: var(#{t.get-color-var('foreground')});
     --_hover-bg: var(#{t.get-color-var('accent')});
@@ -69,7 +76,7 @@
     border: 1px solid var(#{t.get-color-var('border')});
   }
 
-  .btn[data-variant='destructive'] {
+  :where(.btn[data-variant='destructive']) {
     --_bg: var(#{t.get-color-var('danger')});
     --_color: var(#{t.get-color-var('danger-foreground')});
     --_hover-bg: var(#{t.get-color-var('danger')});

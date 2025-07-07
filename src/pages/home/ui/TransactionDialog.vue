@@ -19,7 +19,12 @@ import {
   SelectViewport,
   SelectIcon,
 } from 'radix-vue';
-import { XIcon, ChevronDownIcon, CheckIcon } from 'lucide-vue-next';
+import {
+  XIcon,
+  ChevronDownIcon,
+  CheckIcon,
+  SettingsIcon,
+} from 'lucide-vue-next';
 import { ref, shallowRef } from 'vue';
 
 import { createTransaction } from '~/features/transaction/create';
@@ -30,17 +35,21 @@ import {
   type Transaction,
   DESCRIPTION_MAX_LENGTH,
   type CreatedTransactionErrors,
+  type CreatedTransaction,
 } from '~/entities/transaction';
 import { DatePicker } from '~/shared/ui/datepicker';
 import { CurrencyInput } from '~/shared/ui/currency-input';
 import { FormMessage } from '~/shared/ui/form';
 import { editTransaction } from '~/features/transaction/edit';
+import { CategorySelect } from '~/entities/category';
+import CategoriesDialog from './CategoriesDialog.vue';
 
 type TransactionDialogProps = {
   transactionId?: string;
 };
 
 const props = defineProps<TransactionDialogProps>();
+
 const userId = useCurrentUserId();
 const walletId = useCurrentWalletId();
 const transaction = props.transactionId
@@ -49,11 +58,13 @@ const transaction = props.transactionId
 
 const formState = ref<{
   transactionType: Transaction['type'];
+  categoryId: NonNullable<Transaction['categoryId']>;
   amount: Transaction['amount'];
   createdAt: Date;
   description?: Transaction['description'];
 }>({
   transactionType: transaction?.value.type ?? 'income',
+  categoryId: transaction?.value.categoryId ?? '',
   amount: transaction?.value.amount ?? 0,
   createdAt: transaction?.value.createdAt
     ? new Date(transaction.value.createdAt)
@@ -69,10 +80,12 @@ const saveTransaction = () => {
     amount,
     createdAt,
     description,
+    categoryId,
   } = formState.value;
-  const data = {
-    amount,
+  const data: CreatedTransaction = {
     type,
+    categoryId,
+    amount,
     description,
     createdAt: createdAt.toISOString(),
     userId: userId.value,
@@ -89,6 +102,7 @@ const saveTransaction = () => {
       formState.value.transactionType = 'income';
       formState.value.amount = 0;
       formState.value.description = '';
+      formState.value.categoryId = '';
     }
   } else if (result.errors) {
     formErrors.value = result.errors;
@@ -111,7 +125,9 @@ const handleDialogOpenChange = (open: boolean) => {
       <DialogOverlay class="dialog__overlay" />
       <DialogContent class="dialog__content" aria-describedby="">
         <div class="dialog__header">
-          <DialogTitle class="dialog__title">Add new transaction</DialogTitle>
+          <DialogTitle class="dialog__title">{{
+            props.transactionId ? 'Edit transaction' : 'Add new transaction'
+          }}</DialogTitle>
           <DialogClose
             class="dialog__close btn"
             data-variant="ghost"
@@ -130,6 +146,7 @@ const handleDialogOpenChange = (open: boolean) => {
               v-model="formState.transactionType"
               name="transactionType"
               class="select"
+              @update:model-value="() => (formState.categoryId = '')"
             >
               <SelectTrigger
                 id="transaction-type"
@@ -168,6 +185,44 @@ const handleDialogOpenChange = (open: boolean) => {
                 </SelectContent>
               </SelectPortal>
             </SelectRoot>
+          </div>
+
+          <div class="form-item">
+            <Label for="transaction-category-select" class="label"
+              >Category</Label
+            >
+            <div
+              style="width: 100%; display: flex; gap: 10px; align-items: center"
+            >
+              <CategorySelect
+                v-model="formState.categoryId"
+                :input-props="{
+                  id: 'transaction-category-select',
+                  'aria-describedby': 'transaction-category-error',
+                }"
+                :category-type="formState.transactionType"
+                :user-id="userId"
+                :show-no-parent-option="false"
+                :only-parents="false"
+              />
+              <CategoriesDialog>
+                <button
+                  class="btn"
+                  data-variant="ghost"
+                  data-size="icon"
+                  aria-label="Manage categories"
+                >
+                  <SettingsIcon :size="16" />
+                </button>
+              </CategoriesDialog>
+            </div>
+            <FormMessage
+              v-if="formErrors.categoryId"
+              id="transaction-category-error"
+              variant="error"
+            >
+              {{ formErrors.categoryId }}
+            </FormMessage>
           </div>
 
           <div class="form-item">

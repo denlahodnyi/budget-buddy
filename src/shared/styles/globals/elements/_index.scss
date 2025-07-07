@@ -42,4 +42,10 @@
     border: none;
     cursor: pointer;
   }
+
+  :focus-visible {
+    outline: none;
+    border-color: var(t.get-color-var('accent'));
+    box-shadow: 0 0 0 3px var(t.get-color-var('ring'));
+  }
 }

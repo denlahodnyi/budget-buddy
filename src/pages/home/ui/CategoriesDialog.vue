@@ -89,6 +89,7 @@ const { ids: categoriesIds, queryId } = useParentCategoriesIds(
                 :id="id"
                 :key="id"
                 :parent-categories-query-id="queryId"
+                role="listitem"
               />
             </div>
           </TabsContent>
@@ -99,6 +100,7 @@ const { ids: categoriesIds, queryId } = useParentCategoriesIds(
                 :id="id"
                 :key="id"
                 :parent-categories-query-id="queryId"
+                role="listitem"
               />
             </div>
           </TabsContent>

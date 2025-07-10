@@ -41,7 +41,7 @@ function handleDropdownOpenChange(open: boolean) {
 </script>
 
 <template>
-  <section class="transaction" :data-testid="props.id">
+  <section class="transaction" :data-testid="`transaction_${props.id}`">
     <div
       :style="{ backgroundColor: t.category.color }"
       class="transaction__color-indicator"

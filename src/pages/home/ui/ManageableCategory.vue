@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PenIcon, TrashIcon } from 'lucide-vue-next';
-import { toRef } from 'vue';
+import { computed, toRef } from 'vue';
 
 import { useCategoryByQuery } from '~/entities/category';
 import { CATEGORY_COLORS, CATEGORY_ICONS } from '~/store';
@@ -18,8 +18,9 @@ const category = useCategoryByQuery(
   toRef(() => id),
   toRef(() => queryId)
 );
-const iconName = category.value?.icon ? category.value.icon : 'other';
-const CategoryIcon = CATEGORY_ICONS[iconName];
+const iconName = computed(() =>
+  category.value?.icon ? category.value.icon : 'other'
+);
 </script>
 
 <template>
@@ -29,7 +30,7 @@ const CategoryIcon = CATEGORY_ICONS[iconName];
       :style="{ backgroundColor: CATEGORY_COLORS[category.color] }"
     />
     <component
-      :is="CategoryIcon"
+      :is="CATEGORY_ICONS[iconName]"
       class="category__icon"
       role="img"
       :aria-label="`Icon: ${iconName}`"

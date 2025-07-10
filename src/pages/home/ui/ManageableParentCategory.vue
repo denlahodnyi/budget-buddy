@@ -10,7 +10,7 @@ import {
   CollapsibleRoot,
   CollapsibleTrigger,
 } from 'radix-vue';
-import { ref, toRef } from 'vue';
+import { ref, toRef, useAttrs } from 'vue';
 
 import { useCategoryByQuery, useSubcategoriesIds } from '~/entities/category';
 import { CategoryDelAlert } from '~/features/category/delete';
@@ -23,6 +23,7 @@ export interface ManageableParentCategory {
 }
 
 const { id, parentCategoriesQueryId } = defineProps<ManageableParentCategory>();
+const attrs = useAttrs();
 
 const category = useCategoryByQuery(
   toRef(() => id),
@@ -39,6 +40,8 @@ const isOpen = ref(true);
     <CollapsibleRoot
       v-if="childrenIds.length"
       v-model:open="isOpen"
+      v-bind="attrs"
+      :data-testid="`category_${id}`"
       class="parent-category"
     >
       <div class="parent-category__header">
@@ -77,23 +80,27 @@ const isOpen = ref(true);
           <ChevronUpIcon v-else :size="16" />
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent class="parent-category__content">
+      <CollapsibleContent class="parent-category__content" role="list">
         <ManageableCategory
           v-for="childId of childrenIds"
           :id="childId"
           :key="childId"
           :query-id="subCategoriesQueryId"
           :can-change-parent="true"
+          :data-testid="`category_${childId}`"
           class="parent-category__child"
+          role="listitem"
         />
       </CollapsibleContent>
     </CollapsibleRoot>
 
     <ManageableCategory
       v-else
+      v-bind="attrs"
       :id="id"
       :query-id="parentCategoriesQueryId"
       :can-change-parent="true"
+      :data-testid="`category_${id}`"
     />
   </template>
 </template>

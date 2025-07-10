@@ -15,6 +15,7 @@ export interface Transaction {
   amount: number;
   date: string;
   description?: string;
+  category: string;
 }
 
 Cypress.Commands.add('createTransaction', (transaction: Transaction) => {
@@ -31,6 +32,10 @@ Cypress.Commands.add('createTransaction', (transaction: Transaction) => {
   cy.findByRole('button', { name: /add new/i }).click();
   cy.findByRole('combobox', { name: /transaction type/i }).click();
   cy.findByRole('option', { name: new RegExp(transaction.type, 'i') }).click();
+  cy.findByRole('combobox', { name: /category/i }).type(transaction.category);
+  cy.findByRole('option', {
+    name: new RegExp(transaction.category, 'i'),
+  }).click();
   cy.findByLabelText('Amount').type(transaction.amount.toString());
   cy.findByLabelText('Date').type(`{selectAll}${transaction.date}`);
   cy.findByLabelText('Description').then(($el) => {

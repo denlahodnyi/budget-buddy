@@ -100,6 +100,7 @@ const handleAlertOpenChange = (open: boolean) => {
             :only-parents="false"
             :show-no-parent-option="false"
             :excluded-categories="[categoryId]"
+            :input-props="{ 'aria-label': 'New category' }"
           />
         </div>
         <div

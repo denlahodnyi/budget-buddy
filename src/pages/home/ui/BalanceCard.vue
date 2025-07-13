@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { TriangleAlertIcon } from 'lucide-vue-next';
 import {
   TooltipArrow,
   TooltipContent,
@@ -7,24 +8,28 @@ import {
   TooltipRoot,
   TooltipTrigger,
 } from 'radix-vue';
-import { TriangleAlertIcon } from 'lucide-vue-next';
 
-import { useCurrentWallet } from '~/entities/wallet';
+import { useCurrentUserId } from '~/entities/user';
+import { useUserBalance } from '~/entities/wallet';
 
-const wallet = useCurrentWallet();
+const userId = useCurrentUserId();
+const totalBalance = useUserBalance(userId);
 </script>
 
 <template>
   <section class="card">
     <div class="card__header">
-      <h2 class="card__title">Your balance</h2>
+      <h2 class="card__title">My balance</h2>
     </div>
     <span class="card__text-line">
       <TooltipProvider>
-        <TooltipRoot class="tooltip" :delay-duration="0">
-          <TooltipTrigger role="alert" aria-label="Balance alert">
+        <TooltipRoot class="tooltip warning-tooltip" :delay-duration="0">
+          <TooltipTrigger
+            v-if="totalBalance.balance < 0"
+            role="alert"
+            aria-label="Balance alert"
+          >
             <TriangleAlertIcon
-              v-if="wallet.totalBalance < 0"
               role="img"
               aria-hidden="true"
               class="card__alert-icon"
@@ -39,7 +44,7 @@ const wallet = useCurrentWallet();
           </TooltipPortal>
         </TooltipRoot>
       </TooltipProvider>
-      <p>{{ wallet.formattedTotalBalance }}</p>
+      <p>{{ totalBalance.formattedBalance }}</p>
     </span>
   </section>
 </template>

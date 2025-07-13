@@ -1,12 +1,3 @@
-import type { ResultCell, Row } from 'tinybase/with-schemas';
-import {
-  computed,
-  shallowRef,
-  toRef,
-  toValue,
-  watch,
-  type MaybeRefOrGetter,
-} from 'vue';
 import { isEmpty } from 'lodash-es';
 import {
   enums,
@@ -19,6 +10,15 @@ import {
   type Describe,
   type Infer,
 } from 'superstruct';
+import type { ResultCell, Row } from 'tinybase/with-schemas';
+import {
+  computed,
+  shallowRef,
+  toRef,
+  toValue,
+  watch,
+  type MaybeRefOrGetter,
+} from 'vue';
 
 import {
   useResultRow,

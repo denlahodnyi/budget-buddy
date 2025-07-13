@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { EllipsisVerticalIcon, PencilIcon, TrashIcon } from 'lucide-vue-next';
 import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
   DropdownMenuRoot,
   DropdownMenuTrigger,
-  DropdownMenuPortal,
-  DropdownMenuItem,
-  DropdownMenuContent,
 } from 'radix-vue';
 import { ref, toRef } from 'vue';
 
 import { useTransaction } from '~/entities/transaction';
 import { deleteTransaction } from '~/features/transaction/delete';
-import { CATEGORY_ICONS } from '~/store';
-import TransactionDialog from './TransactionDialog.vue';
+import { CATEGORY_COLORS, CATEGORY_ICONS } from '~/store';
 import TransactionDelAlert from './TransactionDelAlert.vue';
+import TransactionDialog from './TransactionDialog.vue';
 
 interface TransactionProps {
   id: string;
@@ -43,7 +43,7 @@ function handleDropdownOpenChange(open: boolean) {
 <template>
   <section class="transaction" :data-testid="`transaction_${props.id}`">
     <div
-      :style="{ backgroundColor: t.category.color }"
+      :style="{ backgroundColor: CATEGORY_COLORS[t.category.color] }"
       class="transaction__color-indicator"
     />
     <component
@@ -56,6 +56,7 @@ function handleDropdownOpenChange(open: boolean) {
         {{ new Date(t.createdAt).toLocaleDateString() }}
       </p>
     </div>
+    <p class="transaction__wallet">{{ t.wallet.name }}</p>
     <p
       :class="[
         'transaction__amount',
@@ -115,7 +116,13 @@ function handleDropdownOpenChange(open: boolean) {
 .transaction {
   padding: 8px 10px;
   display: grid;
-  grid-template-columns: min-content max-content repeat(2, 1fr) max-content;
+  grid-template-columns:
+    min-content
+    max-content
+    1fr
+    max-content
+    minmax(100px, max-content)
+    max-content;
   gap: 20px;
   align-items: center;
   border: 1px solid
@@ -127,7 +134,7 @@ function handleDropdownOpenChange(open: boolean) {
 
 .transaction > :last-child {
   justify-self: end;
-  border-radius: 100%;
+  // border-radius: 100%;
 }
 
 .transaction__color-indicator {
@@ -147,6 +154,10 @@ function handleDropdownOpenChange(open: boolean) {
 }
 
 .transaction__date {
+  color: var(t.get-color-var('muted-foreground'));
+}
+
+.transaction__wallet {
   color: var(t.get-color-var('muted-foreground'));
 }
 

@@ -1,7 +1,7 @@
 import type { Queries, Select } from 'tinybase/with-schemas';
 
-import type { QueryResult } from './util-types';
 import { storeTablesSchema, type storeValuesSchema } from './store-config';
+import type { QueryResult } from './util-types';
 
 type QueriesWithSchemas = Queries<
   [typeof storeTablesSchema, typeof storeValuesSchema]
@@ -28,6 +28,24 @@ export function setWalletTransactionsQuery(
     ({ select, where, join }) => {
       selectAll(select, 'transactions');
       where('walletId', walletId);
+      join('wallets', 'walletId').as('wallet');
+    }
+  );
+
+  return { queries: queriesReference, queryId };
+}
+
+export function setUserTransactionsQuery(
+  queries: QueriesWithSchemas,
+  userId: string
+) {
+  const queryId = [setUserTransactionsQuery.name, userId].join('_');
+  const queriesReference = queries.setQueryDefinition(
+    queryId,
+    'transactions',
+    ({ select, where, join }) => {
+      selectAll(select, 'transactions');
+      where('userId', userId);
       join('wallets', 'walletId').as('wallet');
     }
   );
@@ -68,6 +86,39 @@ export function setTotalBalanceByWalletQuery(
   return { queries: queriesReference, queryId };
 }
 
+const userBalanceQueryFields = {
+  totalBalanceField: 'totalBalance',
+} as const;
+
+export type UserBalanceQueryResult = QueryResult<
+  typeof userBalanceQueryFields,
+  { totalBalanceField: number | undefined }
+>;
+
+export function setUserBalanceQuery(
+  queries: QueriesWithSchemas,
+  userId: string
+) {
+  const queryId = [setUserBalanceQuery.name, userId].join('_');
+  const queriesReference = queries.setQueryDefinition(
+    queryId,
+    'transactions',
+    ({ select, where, group }) => {
+      select((getCell) => {
+        return getCell('type') === 'income'
+          ? getCell('amount')
+          : -getCell('amount')!;
+      }).as('amountWithSign');
+      where('userId', userId);
+      group('amountWithSign', 'sum').as(
+        userBalanceQueryFields.totalBalanceField
+      );
+    }
+  );
+
+  return { queries: queriesReference, queryId };
+}
+
 const totalIncomeByWalletQueryFields = {
   totalIncomeField: 'totalIncome',
 } as const;
@@ -98,6 +149,34 @@ export function setTotalIncomeByWalletQuery(
   return { queries: queriesReference, queryId };
 }
 
+const userIncomeQueryFields = {
+  totalIncomeField: 'totalIncome',
+} as const;
+
+export type UserIncomeQueryResult = QueryResult<
+  typeof userIncomeQueryFields,
+  { totalIncomeField: number | undefined }
+>;
+
+export function setUserIncomeQuery(
+  queries: QueriesWithSchemas,
+  userId: string
+) {
+  const queryId = [setUserIncomeQuery.name, userId].join('_');
+  const queriesReference = queries.setQueryDefinition(
+    queryId,
+    'transactions',
+    ({ select, where, group }) => {
+      select('amount');
+      where('userId', userId);
+      where('type', 'income');
+      group('amount', 'sum').as(userIncomeQueryFields.totalIncomeField);
+    }
+  );
+
+  return { queries: queriesReference, queryId };
+}
+
 const totalExpenseByWalletQueryFields = {
   totalExpenseField: 'totalExpense',
 } as const;
@@ -122,6 +201,34 @@ export function setTotalExpenseByWalletQuery(
       group('amount', 'sum').as(
         totalExpenseByWalletQueryFields.totalExpenseField
       );
+    }
+  );
+
+  return { queries: queriesReference, queryId };
+}
+
+const userExpenseQueryFields = {
+  totalExpenseField: 'totalExpense',
+} as const;
+
+export type UserExpenseQueryResult = QueryResult<
+  typeof userExpenseQueryFields,
+  { totalExpenseField: number | undefined }
+>;
+
+export function setUserExpenseQuery(
+  queries: QueriesWithSchemas,
+  userId: string
+) {
+  const queryId = [setUserExpenseQuery.name, userId].join('_');
+  const queriesReference = queries.setQueryDefinition(
+    queryId,
+    'transactions',
+    ({ select, where, group }) => {
+      select('amount');
+      where('userId', userId);
+      where('type', 'expense');
+      group('amount', 'sum').as(userExpenseQueryFields.totalExpenseField);
     }
   );
 
@@ -229,4 +336,20 @@ export function setTransactionsCountPerCategoryQuery(
   );
 
   return { queries: queryReference, queryId };
+}
+
+export function setUserWalletsQuery(
+  queries: QueriesWithSchemas,
+  userId: string
+) {
+  const queryId = [setUserWalletsQuery.name, userId].join('_');
+  const queriesRef = queries.setQueryDefinition(
+    queryId,
+    'wallets',
+    ({ select, where }) => {
+      selectAll(select, 'wallets');
+      where('userId', userId);
+    }
+  );
+  return { queryId, queries: queriesRef };
 }

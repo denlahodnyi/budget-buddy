@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { DatePicker } from 'primevue';
 import {
   CalendarDaysIcon,
   ChevronDownIcon,
@@ -7,6 +6,7 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
 } from 'lucide-vue-next';
+import { DatePicker } from 'primevue';
 </script>
 
 <template>
@@ -31,6 +31,7 @@ import {
     :clear-button-props="{ class: 'btn', 'data-variant': 'ghost' }"
     :today-button-props="{ class: 'btn', 'data-variant': 'ghost' }"
     :pt="{
+      root: { style: 'width: 100%;' },
       inputIconContainer: {
         class: 'datepicker__icon-wrapper',
       },

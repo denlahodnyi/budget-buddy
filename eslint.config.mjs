@@ -50,6 +50,14 @@ export default typescriptEslint.config(
             },
           ],
           distinctGroup: false,
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+          named: {
+            enabled: true,
+            types: 'types-last',
+          },
         },
       ],
       'vue/multi-word-component-names': ['off'],

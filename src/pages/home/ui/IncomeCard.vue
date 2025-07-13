@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useCurrentWalletId, useTotalIncomeByWallet } from '~/entities/wallet';
+import { useCurrentUserId } from '~/entities/user';
+import { useUserIncome } from '~/entities/wallet';
 
-const walletId = useCurrentWalletId();
-const income = useTotalIncomeByWallet(walletId);
+const userId = useCurrentUserId();
+const income = useUserIncome(userId);
 </script>
 
 <template>

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@primeuix/utils':
+        specifier: ^0.6.0
+        version: 0.6.0
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -393,6 +396,10 @@ packages:
 
   '@primeuix/utils@0.5.4':
     resolution: {integrity: sha512-8LggV3Jz59pymHQD10e/u63z/GemQ22RBeu2Gb1eJgBYVwn1iOb82LR+daeAc/LxrXCC5pHnftnCmnZO6vInLA==}
+    engines: {node: '>=12.11.0'}
+
+  '@primeuix/utils@0.6.0':
+    resolution: {integrity: sha512-ULpB87ImNAiX36OMtyDeRceWB7N/mVlh6gGLqp/lx8UMKZlLIQH/UAFND86hYXHwNpXeNKcWfMGreb0Oc0hcZA==}
     engines: {node: '>=12.11.0'}
 
   '@primevue/core@4.3.5':
@@ -2638,6 +2645,8 @@ snapshots:
       '@primeuix/styled': 0.6.4
 
   '@primeuix/utils@0.5.4': {}
+
+  '@primeuix/utils@0.6.0': {}
 
   '@primevue/core@4.3.5(vue@3.5.15(typescript@5.8.3))':
     dependencies:

@@ -2,12 +2,12 @@
 import { PlusIcon } from 'lucide-vue-next';
 
 import { useTransactions } from '~/entities/transaction';
-import { useCurrentWalletId } from '~/entities/wallet';
-import TransactionDialog from './TransactionDialog.vue';
+import { useCurrentUserId } from '~/entities/user';
 import Transaction from './Transaction.vue';
+import TransactionDialog from './TransactionDialog.vue';
 
-const walletId = useCurrentWalletId();
-const ids = useTransactions(walletId);
+const userId = useCurrentUserId();
+const ids = useTransactions(userId);
 </script>
 
 <template>
@@ -27,7 +27,10 @@ const ids = useTransactions(walletId);
 <style lang="scss" scoped>
 @use '@globals/tools' as t;
 
-.transactions-list > :not(:last-child) {
-  margin-block-end: t.px-to-rem(12px);
+.transactions-list {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

@@ -12,6 +12,7 @@
     "e2e:chrome": "cypress run --browser chrome"
   },
   "dependencies": {
+    "@primeuix/utils": "^0.6.0",
     "lodash-es": "^4.17.21",
     "lucide-vue-next": "^0.511.0",
     "primevue": "^4.3.5",

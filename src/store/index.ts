@@ -1,7 +1,7 @@
 import { createQueries, createStore } from 'tinybase/with-schemas';
 
-import { storeTablesSchema, storeValuesSchema } from './store-config';
 import categoriesData from './categories.json';
+import { storeTablesSchema, storeValuesSchema } from './store-config';
 
 const store = createStore()
   .setTablesSchema(storeTablesSchema)
@@ -21,7 +21,7 @@ store.setTables({
   wallets: {
     '0': {
       userId: '0',
-      name: 'John Wallet',
+      name: 'My Wallet',
       // balance: 2000,
     },
     '1': {
@@ -64,6 +64,6 @@ queries.addQueryIdsListener((queries) => {
   console.log('QUERIES IDS', queries.getQueryIds());
 });
 
-export { store, queries };
+export { queries, store };
 export * from './store-config';
 export * from './store-queries';

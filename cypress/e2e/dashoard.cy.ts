@@ -23,6 +23,7 @@ describe('The Dashboard page', () => {
       date: '1/2/2025 15:00',
       description: 'Transaction #1',
       category: 'Salary',
+      wallet: 'My Wallet',
     };
     const expenseTransaction: Transaction = {
       type: 'expense',
@@ -30,6 +31,7 @@ describe('The Dashboard page', () => {
       date: '1/3/2025 15:00',
       description: 'Transaction #2',
       category: 'Travel',
+      wallet: 'My Wallet',
     };
 
     cy.createTransaction(incomeTransaction);
@@ -63,6 +65,7 @@ describe('The Dashboard page', () => {
       date: '01/02/2025 15:00',
       description: 'Transaction #1',
       category: 'Salary',
+      wallet: 'My Wallet',
     };
     const editedTransaction: Transaction = {
       type: 'expense',
@@ -70,6 +73,7 @@ describe('The Dashboard page', () => {
       date: '10/10/2024 11:30',
       description: 'Edited Transaction #1',
       category: 'Travel',
+      wallet: 'My Wallet',
     };
 
     cy.createTransaction(transaction);
@@ -121,6 +125,7 @@ describe('The Dashboard page', () => {
       date: '01/02/2025 15:00',
       description: 'Transaction #1',
       category: 'Salary',
+      wallet: 'My Wallet',
     };
     cy.createTransaction(transaction);
     cy.findByTestId('transaction_0')
@@ -295,12 +300,14 @@ describe('The Dashboard page', () => {
       type: 'income',
       category: 'Salary',
       date: '1/2/2025 15:00',
+      wallet: 'My Wallet',
     });
     cy.createTransaction({
       amount: 500,
       type: 'expense',
       category: 'Movies / Games',
       date: '1/2/2025 15:00',
+      wallet: 'My Wallet',
     });
 
     cy.findByRole('button', { name: /add new/i }).click();

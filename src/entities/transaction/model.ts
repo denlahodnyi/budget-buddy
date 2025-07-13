@@ -1,46 +1,47 @@
+import {
+  enums,
+  nonempty,
+  object,
+  optional,
+  size,
+  string,
+  trimmed,
+  type Describe,
+  type Infer,
+} from 'superstruct';
 import type { Row } from 'tinybase/with-schemas';
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
-import {
-  object,
-  type Describe,
-  enums,
-  string,
-  nonempty,
-  size,
-  optional,
-  type Infer,
-  trimmed,
-} from 'superstruct';
 
+import { coerceToNumber, positive } from '~/shared/lib/superstruct';
 import { useResultRowIds, useRow } from '~/shared/lib/tiny-base';
 import {
-  setWalletTransactionsQuery,
+  queries,
+  setUserTransactionsQuery,
   store,
   type storeTablesSchema,
-  queries,
 } from '~/store';
-import { coerceToNumber, positive } from '~/shared/lib/superstruct';
-import { formatCurrency } from '../wallet/lib';
 import type { Category } from '../category';
+import type { BaseWallet } from '../wallet';
+import { formatCurrency } from '../wallet/lib';
 
 export const DESCRIPTION_MAX_LENGTH = 200;
 
 type StoredTransaction = Row<typeof storeTablesSchema, 'transactions'>;
 
-export interface Transaction extends StoredTransaction {
+export interface BaseTransaction extends StoredTransaction {
   type: 'income' | 'expense';
   categoryId: string;
+  userId: string;
+  walletId: string;
+}
+
+export interface Transaction extends BaseTransaction {
   category: Category;
+  wallet: BaseWallet;
   formattedAmount: string;
 }
 
-export const CreatedTransactionScheme: Describe<
-  Omit<Transaction, 'formattedAmount' | 'category'> & {
-    userId: NonNullable<Transaction['userId']>;
-    walletId: NonNullable<Transaction['walletId']>;
-    categoryId: NonNullable<Transaction['categoryId']>;
-  }
-> = object({
+export const CreatedTransactionScheme: Describe<BaseTransaction> = object({
   type: enums(['income', 'expense']),
   amount: positive(coerceToNumber()),
   createdAt: nonempty(trimmed(string())),
@@ -56,10 +57,10 @@ export type CreatedTransactionErrors = {
   [Key in keyof CreatedTransaction]?: string;
 };
 
-export function useTransactions(walletId: MaybeRefOrGetter<string>) {
-  const { queryId, queries: q } = setWalletTransactionsQuery(
+export function useTransactions(userId: MaybeRefOrGetter<string>) {
+  const { queryId, queries: q } = setUserTransactionsQuery(
     queries,
-    toValue(walletId)
+    toValue(userId)
   );
   return useResultRowIds({ queryId: () => queryId, queries: q });
 }
@@ -75,12 +76,16 @@ export function useTransaction(transactionId: MaybeRefOrGetter<string>) {
     tableId: () => 'categories',
     rowId: () => (t.value as Transaction).categoryId,
   });
+  const wallet = useRow({
+    store,
+    tableId: () => 'wallets',
+    rowId: () => (t.value as Transaction).walletId,
+  });
   return computed<Transaction>(() => {
     return {
-      ...t.value,
-      type: t.value.type as Transaction['type'],
-      categoryId: t.value.categoryId as Transaction['categoryId'],
-      category: category.value as Category,
+      ...(t.value as BaseTransaction),
+      category: category.value as Transaction['category'],
+      wallet: wallet.value as Transaction['wallet'],
       formattedAmount: formatCurrency(
         (t.value.type as Transaction['type']) === 'income'
           ? t.value.amount

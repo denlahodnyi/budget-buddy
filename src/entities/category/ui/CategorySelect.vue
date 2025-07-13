@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CheckIcon, ChevronDownIcon, UnlinkIcon, XIcon } from 'lucide-vue-next';
 import {
   ComboboxAnchor,
   ComboboxCancel,
@@ -16,11 +17,10 @@ import {
   ComboboxViewport,
   type ComboboxInputProps,
 } from 'radix-vue';
-import { CheckIcon, ChevronDownIcon, UnlinkIcon, XIcon } from 'lucide-vue-next';
 import { computed, ref, toRef, type InputHTMLAttributes } from 'vue';
 
-import { useFullCategories, type Category } from '../model';
 import { makeNestedCategories } from '../lib';
+import { useFullCategories, type Category } from '../model';
 import { NO_PARENT_VAL } from './config';
 
 export interface CategoriesSelectProps {

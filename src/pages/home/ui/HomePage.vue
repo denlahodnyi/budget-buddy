@@ -3,6 +3,7 @@ import BalanceCard from './BalanceCard.vue';
 import ExpenseCard from './ExpenseCard.vue';
 import IncomeCard from './IncomeCard.vue';
 import RecentTransactions from './RecentTransactions.vue';
+import WalletsCard from './WalletsCard.vue';
 </script>
 
 <template>
@@ -13,6 +14,7 @@ import RecentTransactions from './RecentTransactions.vue';
     <BalanceCard class="grid-block" data-area="balance" />
     <IncomeCard class="grid-block" data-area="income" />
     <ExpenseCard class="grid-block" data-area="expense" />
+    <WalletsCard class="grid-block" data-area="wallets" />
     <RecentTransactions class="grid-block" data-area="transactions" />
   </div>
 </template>
@@ -21,11 +23,15 @@ import RecentTransactions from './RecentTransactions.vue';
 @use '@globals/tools' as t;
 
 .dashboard {
+  max-height: inherit;
+  overflow: inherit;
   display: grid;
+  grid-template-rows: 1fr; // single row that expends the whole parent grid
+  grid-template-columns: repeat(3, auto) 250px;
   grid-template-areas:
-    'title title title'
-    'balance income expense'
-    'transactions transactions transactions';
+    'title title title title'
+    'income expense balance wallets'
+    'transactions transactions transactions wallets';
   gap: 16px;
 }
 
@@ -46,5 +52,16 @@ import RecentTransactions from './RecentTransactions.vue';
 }
 .grid-block[data-area='transactions'] {
   grid-area: transactions;
+  max-height: max-content;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.grid-block[data-area='wallets'] {
+  grid-area: wallets;
+  max-height: max-content;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 </style>

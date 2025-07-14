@@ -34,7 +34,9 @@ import {
   setParentOnlyCategoriesQuery,
   setSubCategoriesQuery,
   store,
+  TRANSACTION_TYPES,
   type storeTablesSchema,
+  type TransactionType,
 } from '~/store';
 
 export const CATEGORY_NAME_MAX_LENGTH = 50;
@@ -42,7 +44,7 @@ export const CATEGORY_NAME_MAX_LENGTH = 50;
 type StoredCategory = Row<typeof storeTablesSchema, 'categories'>;
 
 export interface Category extends StoredCategory {
-  type: 'income' | 'expense';
+  type: TransactionType;
   name: string;
   userId: string;
   icon: keyof typeof CATEGORY_ICONS;
@@ -57,7 +59,7 @@ export const CATEGORY_COLOR_NAMES = Object.keys(
 ) as Category['color'][];
 
 export const CreatedCategoryScheme: Describe<Category> = object({
-  type: enums(['income', 'expense']),
+  type: enums([TRANSACTION_TYPES.INCOME, TRANSACTION_TYPES.EXPENSE]),
   name: nonempty(trimmed(size(string(), 3, CATEGORY_NAME_MAX_LENGTH))),
   color: enums(Object.keys(CATEGORY_COLORS) as typeof CATEGORY_COLOR_NAMES),
   icon: enums(Object.keys(CATEGORY_ICONS) as typeof CATEGORY_ICON_NAMES),
@@ -151,11 +153,12 @@ export function useCategoriesIds(
   categoryType: MaybeRefOrGetter<Category['type'] | 'all'>,
   onlyParents?: MaybeRefOrGetter<boolean>
 ) {
+  const catType = toValue(categoryType);
   const settledQuery = shallowRef(
     setFullCategoriesQuery(
       queries,
       toValue(userId),
-      toValue(categoryType) === 'all' ? undefined : toValue(categoryType),
+      catType === 'all' ? undefined : catType,
       toValue(onlyParents)
     )
   );
@@ -188,11 +191,12 @@ export function useFullCategories(
   onlyParents?: MaybeRefOrGetter<boolean>,
   excludedIds?: MaybeRefOrGetter<string[]>
 ) {
+  const catType = toValue(categoryType);
   const settledQuery = shallowRef(
     setFullCategoriesQuery(
       queries,
       toValue(userId),
-      toValue(categoryType) === 'all' ? undefined : toValue(categoryType),
+      catType === 'all' ? undefined : catType,
       toValue(onlyParents)
     )
   );

@@ -69,4 +69,9 @@ queries.addQueryIdsListener((queries) => {
 
 export { initiateStorePersister, queries, store };
 export * from './store-config';
-export * from './store-queries';
+export * from './queries/balance';
+export * from './queries/category';
+export * from './queries/expense';
+export * from './queries/income';
+export * from './queries/transaction';
+export * from './queries/wallets';

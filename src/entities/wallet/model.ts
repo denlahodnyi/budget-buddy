@@ -79,7 +79,7 @@ export function useCurrentWallet() {
 
   const { queryId } = setTotalBalanceByWalletQuery(queries, walletId.value);
   const totalBalanceQueryResult = useResultRow<
-    UserBalanceQueryResult,
+    TotalBalanceByWalletQueryResult,
     SchemaFromQueries<typeof queries>
   >({
     queries,

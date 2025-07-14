@@ -18,7 +18,9 @@ import {
   queries,
   setUserTransactionsQuery,
   store,
+  TRANSACTION_TYPES,
   type storeTablesSchema,
+  type TransactionType,
 } from '~/store';
 import type { Category } from '../category';
 import type { BaseWallet } from '../wallet';
@@ -29,7 +31,7 @@ export const DESCRIPTION_MAX_LENGTH = 200;
 type StoredTransaction = Row<typeof storeTablesSchema, 'transactions'>;
 
 export interface BaseTransaction extends StoredTransaction {
-  type: 'income' | 'expense';
+  type: TransactionType;
   categoryId: string;
   userId: string;
   walletId: string;
@@ -42,7 +44,7 @@ export interface Transaction extends BaseTransaction {
 }
 
 export const CreatedTransactionScheme: Describe<BaseTransaction> = object({
-  type: enums(['income', 'expense']),
+  type: enums([TRANSACTION_TYPES.INCOME, TRANSACTION_TYPES.EXPENSE]),
   amount: positive(coerceToNumber()),
   createdAt: nonempty(trimmed(string())),
   userId: nonempty(trimmed(string())),

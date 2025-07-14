@@ -22,11 +22,13 @@ import {
 } from 'lucide-vue-next';
 import type { TablesSchema, ValuesSchema } from 'tinybase/with-schemas';
 
-// TODO: use this in place of string literals
-export const TransactionTypes = {
+export const TRANSACTION_TYPES = {
   INCOME: 'income',
   EXPENSE: 'expense',
 } as const;
+
+export type TransactionType =
+  (typeof TRANSACTION_TYPES)[keyof typeof TRANSACTION_TYPES];
 
 const DEFAULT_USER_ID = '0';
 const DEFAULT_WALLET_ID = '0';
@@ -91,7 +93,7 @@ export const storeTablesSchema = {
     userId: { type: 'string', default: DEFAULT_USER_ID }, // Reference to user
   },
   transactions: {
-    type: { type: 'string', default: 'income' }, // 'expense' or 'income'
+    type: { type: 'string', default: TRANSACTION_TYPES.INCOME },
     amount: { type: 'number', default: 0 },
     createdAt: { type: 'string', default: new Date().toISOString() },
     userId: { type: 'string' }, // Reference to user
@@ -101,7 +103,7 @@ export const storeTablesSchema = {
   },
   categories: {
     name: { type: 'string' },
-    type: { type: 'string', default: 'income' },
+    type: { type: 'string', default: TRANSACTION_TYPES.INCOME },
     userId: { type: 'string' },
     parentId: { type: 'string' },
     color: { type: 'string', default: DEFAULT_CAT_COLOR },
@@ -114,3 +116,5 @@ export const storeValuesSchema = {
   walletId: { type: 'string', default: DEFAULT_WALLET_ID },
   firstInit: { type: 'boolean' },
 } satisfies ValuesSchema;
+
+export type StoreSchema = [typeof storeTablesSchema, typeof storeValuesSchema];

@@ -1,0 +1,47 @@
+import type { Queries } from 'tinybase/with-schemas';
+
+import { TRANSACTION_TYPES, type StoreSchema } from '../store-config';
+import type { QueryKeys } from './util-types';
+import { createQuerySetter } from './utils';
+
+export type TotalExpenseByWalletQueryResult = Partial<{
+  totalExpense: number;
+}>;
+
+export function setTotalExpenseByWalletQuery(
+  queries: Queries<StoreSchema>,
+  walletId: string,
+  ...keys: QueryKeys
+) {
+  return createQuerySetter<StoreSchema, 'transactions'>('transactions', () => ({
+    queryKeys: [setTotalExpenseByWalletQuery.name, walletId, ...keys],
+    queryDefinition: ({ select, where, group }) => {
+      select('amount');
+      where('walletId', walletId);
+      where('type', TRANSACTION_TYPES.EXPENSE);
+      group('amount', 'sum').as(
+        'totalExpense' satisfies keyof TotalExpenseByWalletQueryResult
+      );
+    },
+  }))(queries);
+}
+
+export type UserExpenseQueryResult = Partial<{ totalExpense: number }>;
+
+export function setUserExpenseQuery(
+  queries: Queries<StoreSchema>,
+  userId: string,
+  ...keys: QueryKeys
+) {
+  return createQuerySetter<StoreSchema, 'transactions'>('transactions', () => ({
+    queryKeys: [setUserExpenseQuery.name, userId, ...keys],
+    queryDefinition: ({ select, where, group }) => {
+      select('amount');
+      where('userId', userId);
+      where('type', TRANSACTION_TYPES.EXPENSE);
+      group('amount', 'sum').as(
+        'totalExpense' satisfies keyof UserExpenseQueryResult
+      );
+    },
+  }))(queries);
+}

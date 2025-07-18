@@ -19,6 +19,10 @@ export interface Transaction {
   wallet: string;
 }
 
+Cypress.Commands.add('findAddTransactionButton', () =>
+  cy.findByRole('button', { name: /^add new$/i })
+);
+
 Cypress.Commands.add('createTransaction', (transaction: Transaction) => {
   Cypress.on('uncaught:exception', (error) => {
     const errors = [
@@ -30,7 +34,7 @@ Cypress.Commands.add('createTransaction', (transaction: Transaction) => {
     }
   });
 
-  cy.findByRole('button', { name: /^add new$/i }).click();
+  cy.findAddTransactionButton().click();
   cy.findByRole('combobox', { name: /transaction type/i }).click();
   cy.findByRole('option', { name: new RegExp(transaction.type, 'i') }).click();
   cy.findByRole('combobox', { name: /category/i }).type(transaction.category);
@@ -79,6 +83,7 @@ declare global {
       getBalanceText(balanceText: string): Chainable<JQuery<HTMLElement>>;
       getIncomeText(incomeText: string): Chainable<JQuery<HTMLElement>>;
       getExpenseText(expenseText: string): Chainable<JQuery<HTMLElement>>;
+      findAddTransactionButton(): Chainable<JQuery<HTMLElement>>;
     }
   }
 }

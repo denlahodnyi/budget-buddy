@@ -1,7 +1,11 @@
+import type { Store } from 'tinybase';
+import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createQueries, createStore } from 'tinybase/with-schemas';
 
 import categoriesData from './categories.json';
 import { storeTablesSchema, storeValuesSchema } from './store-config';
+
+const LOCAL_DB_NAME = 'budget_store';
 
 const store = createStore()
   .setTablesSchema(storeTablesSchema)
@@ -9,52 +13,51 @@ const store = createStore()
 
 const queries = createQueries(store);
 
-store.setTables({
-  users: {
-    '0': {
-      name: 'John Doe',
-    },
-    '1': {
-      name: 'Jack Daniels',
-    },
-  },
-  wallets: {
-    '0': {
-      userId: '0',
-      name: 'My Wallet',
-      // balance: 2000,
-    },
-    '1': {
-      userId: '1',
-      name: 'Jack Wallet',
-      // balance: 400,
-    },
-  },
-  transactions: {
-    // '0': {
-    //   amount: 2000,
-    //   type: 'income',
-    //   userId: '0',
-    //   walletId: '0',
-    // },
-    // '1': {
-    //   amount: 400,
-    //   type: 'income',
-    //   userId: '1',
-    //   walletId: '1',
-    // },
-  },
-});
+async function initiateStorePersister() {
+  const persister = createIndexedDbPersister(
+    store as unknown as Store,
+    LOCAL_DB_NAME
+  );
 
-categoriesData.forEach((cat) => {
-  const { children, ...rest } = cat;
-  const rowId = store.addRow('categories', { ...rest, userId: '0' });
-  if (children) {
-    children.forEach((ch) => {
-      store.addRow('categories', { ...ch, parentId: rowId, userId: '0' });
+  const readyPersister = await persister.startAutoPersisting([
+    {
+      users: {
+        '0': {
+          name: 'User #1',
+        },
+      },
+      wallets: {
+        '0': {
+          name: 'My Wallet',
+        },
+      },
+    },
+    {
+      firstInit: true,
+    },
+  ]);
+
+  const s = readyPersister.getStore() as unknown as typeof store;
+
+  if (s.getValue('firstInit')) {
+    s.transaction(() => {
+      setCategories(s);
+      s.setValue('firstInit', false);
     });
   }
-});
+}
+
+function setCategories(s: typeof store) {
+  categoriesData.forEach((cat) => {
+    const { children, ...rest } = cat;
+    const rowId = s.addRow('categories', { ...rest, userId: '0' });
+    if (children) {
+      children.forEach((ch) => {
+        s.addRow('categories', { ...ch, parentId: rowId, userId: '0' });
+      });
+    }
+  });
+}
 
 store.addTablesListener((store) => {
   console.log('STORE CHANGED: ', store.getTables());
@@ -64,6 +67,6 @@ queries.addQueryIdsListener((queries) => {
   console.log('QUERIES IDS', queries.getQueryIds());
 });
 
-export { queries, store };
+export { initiateStorePersister, queries, store };
 export * from './store-config';
 export * from './store-queries';

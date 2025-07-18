@@ -1,8 +1,7 @@
-import { createApp } from 'vue';
 import PrimeVue from 'primevue/config';
+import { createApp } from 'vue';
 
 import './app/main.scss';
-import './store';
 import App from './App.vue';
 
 const app = createApp(App);

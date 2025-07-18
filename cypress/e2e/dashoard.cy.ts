@@ -7,9 +7,25 @@ const localizeNum = (num: number, options?: Intl.NumberFormatOptions) =>
     ...options,
   });
 
+const IDB_NAME = 'budget_store';
+
 describe('The Dashboard page', () => {
   beforeEach(() => {
-    cy.visit('/');
+    cy.wrap(
+      new Promise((resolve, reject) => {
+        const IDBOpenDBRequest = window.indexedDB.deleteDatabase(IDB_NAME);
+        IDBOpenDBRequest.onsuccess = () => {
+          resolve(true);
+        };
+        IDBOpenDBRequest.onerror = () => {
+          console.error('Error deleting IndexedDB:', IDBOpenDBRequest.error);
+          reject(IDBOpenDBRequest.error);
+        };
+      })
+    ).then(() => {
+      cy.visit('/');
+      cy.findByTestId('loader-overlay').should('not.be.visible');
+    });
   });
 
   it('successfully loads home page with main title', () => {
@@ -144,7 +160,7 @@ describe('The Dashboard page', () => {
     const categoryName = 'Birthday gift';
     const editedCategoryName = 'Christmas gift';
 
-    cy.findByRole('button', { name: /add new/i }).click();
+    cy.findAddTransactionButton().click();
     cy.findByRole('button', { name: /manage categories/i }).click();
     cy.findByRole('button', { name: /add new category/i }).click();
     // create category
@@ -221,7 +237,7 @@ describe('The Dashboard page', () => {
     const categoryName = 'Hobby';
     const editedCategoryName = 'Guitar class';
 
-    cy.findByRole('button', { name: /add new/i }).click();
+    cy.findAddTransactionButton().click();
     cy.findByRole('button', { name: /manage categories/i }).click();
     cy.findByRole('tab', { name: /expense/i }).click();
     cy.findByRole('button', { name: /add new category/i }).click();
@@ -310,7 +326,7 @@ describe('The Dashboard page', () => {
       wallet: 'My Wallet',
     });
 
-    cy.findByRole('button', { name: /add new/i }).click();
+    cy.findAddTransactionButton().click();
     cy.findByRole('button', { name: /manage categories/i }).click();
     // Delete first transaction's category
     cy.findByRole('dialog')

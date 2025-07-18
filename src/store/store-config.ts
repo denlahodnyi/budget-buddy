@@ -1,4 +1,3 @@
-import type { TablesSchema, ValuesSchema } from 'tinybase/with-schemas';
 import {
   BanknoteArrowUpIcon,
   BriefcaseMedicalIcon,
@@ -21,6 +20,7 @@ import {
   TreePalmIcon,
   WifiIcon,
 } from 'lucide-vue-next';
+import type { TablesSchema, ValuesSchema } from 'tinybase/with-schemas';
 
 // TODO: use this in place of string literals
 export const TransactionTypes = {
@@ -88,7 +88,7 @@ export const storeTablesSchema = {
     // balance: { type: 'number', default: 0 },
     currency: { type: 'string', default: 'USD' },
     createdAt: { type: 'string', default: new Date().toISOString() },
-    userId: { type: 'string' }, // Reference to user
+    userId: { type: 'string', default: DEFAULT_USER_ID }, // Reference to user
   },
   transactions: {
     type: { type: 'string', default: 'income' }, // 'expense' or 'income'
@@ -112,4 +112,5 @@ export const storeTablesSchema = {
 export const storeValuesSchema = {
   userId: { type: 'string', default: DEFAULT_USER_ID },
   walletId: { type: 'string', default: DEFAULT_WALLET_ID },
+  firstInit: { type: 'boolean' },
 } satisfies ValuesSchema;

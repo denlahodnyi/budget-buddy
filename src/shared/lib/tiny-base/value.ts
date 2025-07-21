@@ -44,10 +44,10 @@ export function useValueListener<TSchemas extends OptionalSchemas>(args: {
   );
 }
 
-export function useValue<TSchemas extends OptionalSchemas>(args: {
-  valueId: MaybeRefOrGetter<ValueIdFromSchema<TSchemas[1]>>;
-  store: Store<TSchemas>;
-}) {
+export function useValue<
+  TSchemas extends OptionalSchemas,
+  TValueId extends ValueIdFromSchema<TSchemas[1]>
+>(args: { valueId: MaybeRefOrGetter<TValueId>; store: Store<TSchemas> }) {
   const { valueId, store } = args;
   const value = shallowRef(store.getValue(toValue(valueId)));
 

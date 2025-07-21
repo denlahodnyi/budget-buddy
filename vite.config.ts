@@ -1,10 +1,24 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+// import Sonda from 'sonda/vite';
+// import { visualizer } from 'rollup-plugin-visualizer';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  build: {
+    sourcemap: true,
+  },
+  plugins: [
+    vue(),
+    // Sonda({
+    //   open: false,
+    //   brotli: true,
+    //   gzip: true,
+    //   filename: 'stats_[index]',
+    // }),
+    // visualizer({ open: true, gzipSize: true, brotliSize: true, sourcemap: true }),
+  ],
   resolve: {
     alias: {
       '~': new URL('./src', import.meta.url).toString(),

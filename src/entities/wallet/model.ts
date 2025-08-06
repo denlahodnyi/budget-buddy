@@ -16,14 +16,18 @@ import {
   type MaybeRefOrGetter,
 } from 'vue';
 
+import { formatCurrency } from '~/shared/lib/money';
 import {
   useResultRow,
   useResultRowIds,
+  useResultTable,
   useRow,
   useValue,
   type SchemaFromQueries,
 } from '~/shared/lib/tiny-base';
 import {
+  CURRENCY_TYPES,
+  isPopulatedCurrencyDefined,
   queries,
   setTotalBalanceByWalletQuery,
   setTotalExpenseByWalletQuery,
@@ -33,6 +37,7 @@ import {
   setUserIncomeQuery,
   setUserWalletsQuery,
   store,
+  type StoreSchema,
   type storeTablesSchema,
   type TotalBalanceByWalletQueryResult,
   type TotalExpenseByWalletQueryResult,
@@ -40,10 +45,14 @@ import {
   type UserBalanceQueryResult,
   type UserExpenseQueryResult,
   type UserIncomeQueryResult,
+  type UserWalletsQueryResult,
 } from '~/store';
-import { formatCurrency } from './lib';
+import { useExchangeRates, type BaseCurrency } from '../currency';
 
 type StoredWallet = Row<typeof storeTablesSchema, 'wallets'>;
+
+export type WalletPopulatedWith<TBase, TPopulated extends 'currency'> = TBase &
+  (TPopulated extends 'currency' ? { currency: BaseCurrency | null } : never);
 
 export interface BaseWallet extends StoredWallet {
   userId: string;
@@ -56,12 +65,12 @@ export interface Wallet extends BaseWallet {
 
 export const WALLET_NAME_MAX_LENGTH = 50;
 
-export const CreatedWalletScheme: Describe<Omit<BaseWallet, 'currency'>> =
-  object({
-    name: nonempty(size(trimmed(string()), 0, WALLET_NAME_MAX_LENGTH)),
-    createdAt: nonempty(trimmed(string())),
-    userId: nonempty(trimmed(string())),
-  });
+export const CreatedWalletScheme: Describe<BaseWallet> = object({
+  name: nonempty(size(trimmed(string()), 0, WALLET_NAME_MAX_LENGTH)),
+  createdAt: nonempty(trimmed(string())),
+  userId: nonempty(trimmed(string())),
+  currencyId: nonempty(trimmed(string())),
+});
 
 export type CreatedWallet = Infer<typeof CreatedWalletScheme>;
 
@@ -70,38 +79,22 @@ export type CreatedWalletErrors = {
   [Key in keyof CreatedWallet]?: string;
 };
 
-export function useCurrentWalletId() {
-  return useValue({ store, valueId: () => 'walletId' });
+function getCurrencyRate(
+  userId: string,
+  currencyCode: string,
+  rates?: Record<string, number>
+) {
+  const liveRate = rates && rates[`USD${currencyCode}`];
+  const userRate = store.getCell(
+    'userExchangeRates',
+    `${toValue(userId)}_${currencyCode}`,
+    'rate'
+  );
+  return userRate || liveRate || 1;
 }
 
-export function useCurrentWallet() {
-  const walletId = useCurrentWalletId();
-
-  const { queryId } = setTotalBalanceByWalletQuery(queries, walletId.value);
-  const totalBalanceQueryResult = useResultRow<
-    TotalBalanceByWalletQueryResult,
-    SchemaFromQueries<typeof queries>
-  >({
-    queries,
-    queryId: () => queryId,
-    rowId: () => '0',
-  });
-
-  const wallet = useRow({
-    store,
-    tableId: () => 'wallets',
-    rowId: walletId,
-  });
-
-  return computed<Wallet>(() => {
-    return {
-      ...(wallet.value as BaseWallet),
-      totalBalance: totalBalanceQueryResult.value?.totalBalance || 0,
-      formattedTotalBalance: formatCurrency(
-        totalBalanceQueryResult.value?.totalBalance || 0
-      ),
-    };
-  });
+export function useCurrentWalletId() {
+  return useValue({ store, valueId: () => 'walletId' });
 }
 
 export function useTotalIncomeByWallet(walletId: MaybeRefOrGetter<string>) {
@@ -150,69 +143,149 @@ export function useUserBalance(userId: MaybeRefOrGetter<string>) {
       settledQuery.value = setUserBalanceQuery(queries, newUserId);
     }
   );
-  const result = useResultRow<
-    UserBalanceQueryResult,
-    SchemaFromQueries<typeof queries>
-  >({ queries, queryId: () => settledQuery.value.queryId, rowId: () => '0' });
+  const result = useResultTable<
+    Record<string, UserBalanceQueryResult>,
+    StoreSchema
+  >({
+    queries,
+    queryId: () => settledQuery.value.queryId,
+  });
+  const { data: liveRates } = useExchangeRates();
 
-  return computed(() => ({
-    balance: result.value.totalBalance ?? 0,
-    formattedBalance: formatCurrency(result.value.totalBalance ?? 0),
-  }));
+  return computed(() => {
+    const totalBalance = Object.entries(result.value).reduce(
+      (sum, [_, { code, totalBalance }]) => {
+        return (
+          sum +
+          totalBalance / getCurrencyRate(toValue(userId), code, liveRates.value)
+        );
+      },
+      0
+    );
+    return {
+      balance: totalBalance ?? 0,
+      formattedBalance: formatCurrency(totalBalance ?? 0),
+    };
+  });
 }
 
 export function useUserIncome(userId: MaybeRefOrGetter<string>) {
-  const { queryId } = setUserIncomeQuery(queries, toValue(userId));
-  const result = useResultRow<
-    UserIncomeQueryResult,
-    SchemaFromQueries<typeof queries>
+  const settledQuery = shallowRef(setUserIncomeQuery(queries, toValue(userId)));
+  watch(
+    () => toValue(userId),
+    (newUserId) => {
+      settledQuery.value = setUserIncomeQuery(queries, newUserId);
+    }
+  );
+  const result = useResultTable<
+    Record<string, UserIncomeQueryResult>,
+    StoreSchema
   >({
     queries,
-    queryId: () => queryId,
-    rowId: () => '0',
+    queryId: () => settledQuery.value.queryId,
   });
+  const { data: liveRates } = useExchangeRates();
+
   return computed(() => {
+    const totalIncome = Object.entries(result.value).reduce(
+      (sum, [_, { code, totalIncome }]) => {
+        return (
+          sum +
+          totalIncome / getCurrencyRate(toValue(userId), code, liveRates.value)
+        );
+      },
+      0
+    );
     return {
-      ...result.value,
-      formattedTotalIncome: formatCurrency(result.value.totalIncome || 0),
+      income: totalIncome ?? 0,
+      formattedTotalIncome: formatCurrency(totalIncome ?? 0),
     };
   });
 }
 
 export function useUserExpense(userId: MaybeRefOrGetter<string>) {
-  const { queryId } = setUserExpenseQuery(queries, toValue(userId));
-  const result = useResultRow<
-    UserExpenseQueryResult,
-    SchemaFromQueries<typeof queries>
+  const settledQuery = shallowRef(
+    setUserExpenseQuery(queries, toValue(userId))
+  );
+  watch(
+    () => toValue(userId),
+    (newUserId) => {
+      settledQuery.value = setUserExpenseQuery(queries, newUserId);
+    }
+  );
+  const result = useResultTable<
+    Record<string, UserExpenseQueryResult>,
+    StoreSchema
   >({
     queries,
-    queryId: () => queryId,
-    rowId: () => '0',
+    queryId: () => settledQuery.value.queryId,
   });
+  const { data: liveRates } = useExchangeRates();
+
   return computed(() => {
+    const totalExpense = Object.entries(result.value).reduce(
+      (sum, [_, { code, totalExpense }]) => {
+        return (
+          sum +
+          totalExpense / getCurrencyRate(toValue(userId), code, liveRates.value)
+        );
+      },
+      0
+    );
     return {
-      ...result.value,
-      formattedTotalExpense: formatCurrency(-(result.value.totalExpense || 0)),
+      expense: totalExpense ?? 0,
+      formattedTotalExpense: formatCurrency(-(totalExpense || 0)),
     };
   });
 }
 
 export function useUserWalletsIds(userId: MaybeRefOrGetter<string>) {
-  const { queryId, queries: q } = setUserWalletsQuery(queries, toValue(userId));
-  return useResultRowIds({ queryId: () => queryId, queries: q });
+  const { queryId, queries: q } = setUserWalletsQuery(
+    queries,
+    toValue(userId),
+    { currency: true }
+  );
+  const ids = useResultRowIds({ queryId: () => queryId, queries: q });
+  return { ids, queryId, queries: q };
 }
 
-export function useUserBaseWallets(userId: MaybeRefOrGetter<string>) {
-  const ids = useUserWalletsIds(userId);
+export function useUserWallets(userId: MaybeRefOrGetter<string>) {
+  const { ids, queryId, queries } = useUserWalletsIds(userId);
+
   return computed(() => {
-    const baseWallets: (BaseWallet & { id: string })[] = [];
-
-    ids.value.forEach((id) => {
-      const wallet = store.getRow('wallets', id) as BaseWallet;
-      baseWallets.push({ ...wallet, id });
+    const wallets: (WalletPopulatedWith<BaseWallet, 'currency'> & {
+      id: string;
+    })[] = ids.value.map((id) => {
+      const {
+        currencyCode,
+        currencyDecimalPlaces,
+        currencyIsISO,
+        currencyName,
+        currencyType,
+        currencyUserId,
+        ...wallet
+      } = queries.getResultRow(queryId, id) as UserWalletsQueryResult;
+      const populatedCurrency = {
+        currencyCode,
+        currencyDecimalPlaces,
+        currencyIsISO,
+        currencyName,
+        currencyType,
+        currencyUserId,
+      };
+      const currency = isPopulatedCurrencyDefined(populatedCurrency)
+        ? {
+            code: populatedCurrency.currencyCode,
+            decimalPlaces: populatedCurrency.currencyDecimalPlaces,
+            isISO: populatedCurrency.currencyIsISO,
+            name: populatedCurrency.currencyName,
+            type: populatedCurrency.currencyType as BaseCurrency['type'],
+            userId: populatedCurrency.currencyUserId,
+          }
+        : null;
+      return { id, currency, ...wallet };
     });
-
-    return baseWallets;
+    return wallets;
   });
 }
 
@@ -234,12 +307,27 @@ export function useWallet(walletId: MaybeRefOrGetter<string>) {
   });
 
   return computed<Wallet>(() => {
+    const { totalBalance } = totalBalanceQueryResult.value;
+    const currency = store.getRow(
+      'currencies',
+      wallet.value.currencyId
+    ) as BaseCurrency;
+    const isCrypto =
+      currency.type === CURRENCY_TYPES.CRYPTO ||
+      currency.type === CURRENCY_TYPES.CUSTOM;
     return {
       ...(wallet.value as BaseWallet),
-      totalBalance: totalBalanceQueryResult.value?.totalBalance || 0,
-      formattedTotalBalance: formatCurrency(
-        totalBalanceQueryResult.value?.totalBalance || 0
-      ),
+      totalBalance: totalBalance || 0,
+      formattedTotalBalance: formatCurrency(totalBalance || 0, {
+        currency: currency.code,
+        symbol: currency.symbol,
+        ...(isCrypto
+          ? {
+              minDecimals: 0,
+              maxDecimals: currency.decimalPlaces,
+            }
+          : {}),
+      }),
     };
   });
 }

@@ -4,6 +4,7 @@ import type {
   OptionalValuesSchema,
   Queries,
   ResultRow,
+  ResultTable,
 } from 'tinybase/with-schemas';
 
 export type AsId<Key> = Exclude<Key & Id, number>;
@@ -18,6 +19,10 @@ export type ValueIdFromSchema<Schema extends OptionalValuesSchema> = AsId<
 
 export type MaybeUndefinedResultRow = {
   [T in keyof ResultRow]?: ResultRow[T];
+};
+
+export type MaybeEmptyResultTable = {
+  [T in keyof ResultTable]?: ResultTable[T];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,3 +1,4 @@
+import { upperFirst } from 'lodash-es';
 import type {
   Group,
   Having,
@@ -60,12 +61,35 @@ export function createQuerySetter<
   };
 }
 
-export function selectAll<TTableId extends keyof typeof storeTablesSchema>(
+type TableIds = keyof typeof storeTablesSchema;
+
+export function selectAll<TTableId extends TableIds>(
   select: Select<typeof storeTablesSchema, TTableId>,
-  tableId: TTableId
-) {
-  Object.keys(storeTablesSchema[tableId]).forEach((field) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    select(field as any)
-  );
+  tableId: TTableId,
+  asPrefixOrExtractor?: string | ((cellId: string) => string)
+): void;
+export function selectAll<TTableId extends TableIds>(
+  select: Select<typeof storeTablesSchema, TTableId>,
+  tableId: TTableId,
+  joinedTableId: TTableId | string,
+  asPrefixOrExtractor?: string | ((cellId: string) => string)
+): void;
+export function selectAll<TTableId extends TableIds>(
+  select: Select<typeof storeTablesSchema, TTableId>,
+  tableId: TTableId,
+  tableOrJoinedTableId?: TTableId | string,
+  asPrefixOrExtractor?: string | ((cellId: string) => string)
+): void {
+  Object.keys(storeTablesSchema[tableId]).forEach((field) => {
+    const sel = tableOrJoinedTableId
+      ? select(tableOrJoinedTableId, field)
+      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        select(field as any);
+    if (asPrefixOrExtractor)
+      sel.as(
+        typeof asPrefixOrExtractor === 'function'
+          ? asPrefixOrExtractor(field)
+          : `${asPrefixOrExtractor}${upperFirst(field)}`
+      );
+  });
 }

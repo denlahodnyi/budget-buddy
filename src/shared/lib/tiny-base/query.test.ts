@@ -11,6 +11,8 @@ import {
   useResultRowIds,
   useResultRowIdsListener,
   useResultRowListener,
+  useResultTable,
+  useResultTableListener,
 } from './query';
 
 describe('The useResultRowIdsListener composable', () => {
@@ -218,5 +220,119 @@ describe('The useResultRow composable', () => {
     rowId.value = 'garry';
     await flushPromises();
     expect(resultRow.value).toEqual({ species: 'cat', color: 'green' });
+  });
+});
+
+describe('The useResultTableListener composable', () => {
+  it('calls listener (with queries) when query result table changes', () => {
+    const store = createTestStore();
+    const { queries } = createTestStoreQueries(store);
+    const listener = vi.fn();
+
+    useResultTableListener({
+      queries,
+      queryId: () => 'dogSpeciesQuery',
+      listener,
+    });
+
+    store.setCell('pets', 'fido', 'color', 'brown'); // this one doesn't trigger the query
+    store.setRow('pets', 'garry', { species: 'dog' });
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledWith(
+      queries,
+      'dogSpeciesQuery',
+      expect.anything()
+    );
+  });
+
+  it('registers new listener when query id changes', async () => {
+    const store = createTestStore();
+    const { queries } = createTestStoreQueries(store);
+    const queryId = ref('dogSpeciesQuery');
+    const listener = vi.fn();
+
+    useResultTableListener({
+      queries,
+      queryId,
+      listener,
+    });
+
+    store.setRow('pets', 'garry', { species: 'cat' }); // this one triggers the query
+    store.setCell('pets', 'fido', 'color', 'brown'); // this one doesn't trigger the query
+    store.setCell('pets', 'fido', 'species', 'cat'); // this one triggers the query
+    queryId.value = 'catSpeciesQuery';
+    await flushPromises();
+    store.setCell('pets', 'garry', 'species', 'parrot'); // this one triggers the query
+
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(listener).toHaveBeenLastCalledWith(
+      queries,
+      'catSpeciesQuery',
+      expect.anything()
+    );
+  });
+});
+
+describe.only('The useResultTable composable', () => {
+  it('returns the current result table and updates when it changes', () => {
+    const store = createTestStore();
+    const { queries } = createTestStoreQueries(store);
+    queries.setQueryDefinition('fullDog', 'pets', ({ select, where }) => {
+      select('species');
+      select('color');
+      where('species', 'dog');
+    });
+
+    const resultTable = useResultTable({
+      queryId: () => 'fullDog',
+      queries,
+    });
+
+    expect(resultTable.value).toEqual({ fido: { species: 'dog' } });
+    store.setCell('pets', 'fido', 'color', 'black'); // this one triggers the query
+    expect(resultTable.value).toEqual({
+      fido: { species: 'dog', color: 'black' },
+    });
+    store.setCell('pets', 'fido', 'species', 'cat'); // this one triggers the query
+    expect(resultTable.value).toEqual({});
+    store.setCell('pets', 'fido', 'color', 'brown'); // this one doesn't trigger the query
+    expect(resultTable.value).toEqual({});
+  });
+
+  it('returns updated table when queryId', async () => {
+    const store = createTestStore();
+    const { queries } = createTestStoreQueries(store);
+    const queryId = ref('fullDog');
+    queries.setQueryDefinition('fullDog', 'pets', ({ select, where }) => {
+      select('species');
+      select('color');
+      where('species', 'dog');
+    });
+    queries.setQueryDefinition('fullCat', 'pets', ({ select, where }) => {
+      select('species');
+      select('color');
+      where('species', 'cat');
+    });
+
+    const resultTable = useResultTable({
+      queryId,
+      queries,
+    });
+
+    store.setRow('pets', 'felix', { species: 'dog', color: 'red' });
+    await flushPromises();
+    expect(resultTable.value).toEqual({
+      fido: { species: 'dog' },
+      felix: { species: 'dog', color: 'red' },
+    });
+    queryId.value = 'fullCat';
+    await flushPromises();
+    expect(resultTable.value).toEqual({});
+    store.setRow('pets', 'garry', { species: 'cat', color: 'green' });
+    await flushPromises();
+    expect(resultTable.value).toEqual({
+      garry: { species: 'cat', color: 'green' },
+    });
   });
 });

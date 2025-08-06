@@ -7,7 +7,7 @@ import WalletDialog from './WalletDialog.vue';
 import WalletItem from './WalletItem.vue';
 
 const userId = useCurrentUserId();
-const walletsIds = useUserWalletsIds(userId);
+const { ids: walletsIds } = useUserWalletsIds(userId);
 </script>
 
 <template>

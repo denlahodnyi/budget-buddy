@@ -2,12 +2,15 @@
 import { watch } from 'vue';
 import {
   useCurrencyInput,
+  type CurrencyDisplay,
   type CurrencyInputOptions,
 } from 'vue-currency-input';
 
 export interface CurrencyInputProps {
   modelValue: number | null;
-  options?: CurrencyInputOptions;
+  options?: Omit<CurrencyInputOptions, 'currencyDisplay'> & {
+    currencyDisplay?: keyof typeof CurrencyDisplay; // use union instead of enum
+  };
 }
 
 const defaultOptions: CurrencyInputOptions = {
@@ -19,13 +22,22 @@ const defaultOptions: CurrencyInputOptions = {
 const props = defineProps<CurrencyInputProps>();
 const { inputRef, setOptions, setValue } = useCurrencyInput({
   ...defaultOptions,
-  ...(props.options ?? {}),
+  ...((props.options ?? {}) as CurrencyInputOptions),
+  ...(props.options?.currencyDisplay
+    ? { currencyDisplay: props.options.currencyDisplay as CurrencyDisplay }
+    : {}),
 });
 
 watch(
   () => props.options,
   (newOptions) => {
-    if (newOptions) setOptions({ ...defaultOptions, ...newOptions });
+    const { currencyDisplay, ...rest } = newOptions ?? {};
+    if (newOptions)
+      setOptions({
+        ...defaultOptions,
+        currencyDisplay: currencyDisplay as CurrencyDisplay,
+        ...rest,
+      });
   }
 );
 

@@ -2,7 +2,9 @@ import type { Store } from 'tinybase';
 import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db';
 import { createQueries, createStore } from 'tinybase/with-schemas';
 
-import categoriesData from './categories.json';
+import { CATEGORY_COLORS, CATEGORY_ICONS } from './data/categories';
+import categoriesData from './data/categories.json';
+import { DEFAULT_CURRENCIES } from './data/currencies';
 import { storeTablesSchema, storeValuesSchema } from './store-config';
 
 const LOCAL_DB_NAME = 'budget_store';
@@ -42,6 +44,9 @@ async function initiateStorePersister() {
   if (s.getValue('firstInit')) {
     s.transaction(() => {
       setCategories(s);
+      DEFAULT_CURRENCIES.forEach((c) => {
+        s.addRow('currencies', c);
+      });
       s.setValue('firstInit', false);
     });
   }
@@ -59,15 +64,24 @@ function setCategories(s: typeof store) {
   });
 }
 
+// TODO: remove on prod
 store.addTablesListener((store) => {
   console.log('STORE CHANGED: ', store.getTables());
 });
 
+// TODO: remove on prod
 queries.addQueryIdsListener((queries) => {
   console.log('QUERIES IDS', queries.getQueryIds());
 });
 
-export { initiateStorePersister, queries, store };
+export {
+  CATEGORY_COLORS,
+  CATEGORY_ICONS,
+  DEFAULT_CURRENCIES,
+  initiateStorePersister,
+  queries,
+  store,
+};
 export * from './store-config';
 export * from './queries/balance';
 export * from './queries/category';
@@ -75,3 +89,4 @@ export * from './queries/expense';
 export * from './queries/income';
 export * from './queries/transaction';
 export * from './queries/wallets';
+export * from './queries/currency';

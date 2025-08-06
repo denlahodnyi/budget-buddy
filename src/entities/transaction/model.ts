@@ -12,9 +12,11 @@ import {
 import type { Row } from 'tinybase/with-schemas';
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 
+import { formatCurrency } from '~/shared/lib/money';
 import { coerceToNumber, positive } from '~/shared/lib/superstruct';
 import { useResultRowIds, useRow } from '~/shared/lib/tiny-base';
 import {
+  CURRENCY_TYPES,
   queries,
   setUserTransactionsQuery,
   store,
@@ -23,8 +25,8 @@ import {
   type TransactionType,
 } from '~/store';
 import type { Category } from '../category';
+import type { BaseCurrency } from '../currency';
 import type { BaseWallet } from '../wallet';
-import { formatCurrency } from '../wallet/lib';
 
 export const DESCRIPTION_MAX_LENGTH = 200;
 
@@ -84,6 +86,14 @@ export function useTransaction(transactionId: MaybeRefOrGetter<string>) {
     rowId: () => (t.value as Transaction).walletId,
   });
   return computed<Transaction>(() => {
+    const currency = store.getRow(
+      'currencies',
+      wallet.value.currencyId
+    ) as BaseCurrency;
+    const isCrypto =
+      currency.type === CURRENCY_TYPES.CRYPTO ||
+      currency.type === CURRENCY_TYPES.CUSTOM;
+
     return {
       ...(t.value as BaseTransaction),
       category: category.value as Transaction['category'],
@@ -91,7 +101,17 @@ export function useTransaction(transactionId: MaybeRefOrGetter<string>) {
       formattedAmount: formatCurrency(
         (t.value.type as Transaction['type']) === 'income'
           ? t.value.amount
-          : -t.value.amount
+          : -t.value.amount,
+        {
+          currency: currency.code,
+          symbol: currency.symbol,
+          ...(isCrypto
+            ? {
+                minDecimals: 0,
+                maxDecimals: currency.decimalPlaces,
+              }
+            : {}),
+        }
       ),
     };
   });

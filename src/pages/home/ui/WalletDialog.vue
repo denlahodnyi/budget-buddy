@@ -10,10 +10,15 @@ import {
   DialogTrigger,
   Label,
 } from 'radix-vue';
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 
+import { CurrencySelect } from '~/entities/currency';
 import { useCurrentUserId } from '~/entities/user';
-import { useWallet, type CreatedWalletErrors } from '~/entities/wallet';
+import {
+  useWallet,
+  type CreatedWallet,
+  type CreatedWalletErrors,
+} from '~/entities/wallet';
 import { createWallet } from '~/features/wallet/create';
 import { editWallet } from '~/features/wallet/edit';
 import { FormMessage } from '~/shared/ui/form';
@@ -26,16 +31,19 @@ const { walletId = '' } = defineProps<WalletDialogProps>();
 
 const userId = useCurrentUserId();
 const wallet = walletId ? useWallet(walletId) : null;
-const formState = ref<{ name: string }>({
+const formState = ref<{ name: string; currencyId: string }>({
   name: wallet?.value.name ?? '',
+  currencyId: wallet?.value.currencyId ?? '',
 });
 const formErrors = ref<CreatedWalletErrors>({});
 const isOpen = ref(false);
+const dialogRef = useTemplateRef('dialog');
 
 const saveWallet = () => {
-  const { name } = formState.value;
-  const payload = {
+  const { name, currencyId } = formState.value;
+  const payload: CreatedWallet = {
     name,
+    currencyId,
     createdAt: new Date().toISOString(),
     userId: userId.value,
   };
@@ -46,8 +54,9 @@ const saveWallet = () => {
     formErrors.value = result.errors;
   } else {
     formErrors.value = {};
-    formState.value = { name: '' };
+    formState.value = { name: '', currencyId: '' };
     isOpen.value = false;
+    dialogRef.value?.$emit('update:open', false);
   }
 };
 
@@ -55,15 +64,16 @@ const handleDialogOpenChange = (open: boolean) => {
   isOpen.value = open;
   if (!open) {
     formErrors.value = {};
-    formState.value = { name: '' };
+    formState.value = { name: '', currencyId: '' };
   }
 };
 </script>
 
 <template>
   <DialogRoot
+    ref="dialog"
+    v-model:open="isOpen"
     class="dialog"
-    :open="isOpen"
     @update:open="handleDialogOpenChange"
   >
     <DialogTrigger as-child>
@@ -101,6 +111,25 @@ const handleDialogOpenChange = (open: boolean) => {
               variant="error"
             >
               {{ formErrors.name }}
+            </FormMessage>
+          </div>
+
+          <div class="form-item">
+            <Label for="wallet-currency">Currency</Label>
+            <CurrencySelect
+              v-model="formState.currencyId"
+              :user-id="userId"
+              :input-props="{
+                id: 'wallet-currency',
+                'aria-describedby': 'wallet-currency-error',
+              }"
+            />
+            <FormMessage
+              v-if="formErrors.name"
+              id="wallet-currency-error"
+              variant="error"
+            >
+              {{ formErrors.currencyId }}
             </FormMessage>
           </div>
 

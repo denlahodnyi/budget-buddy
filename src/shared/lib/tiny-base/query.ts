@@ -5,6 +5,7 @@ import type {
   Queries,
   ResultRowIdsListener,
   ResultRowListener,
+  ResultTableListener,
 } from 'tinybase/with-schemas';
 import {
   onWatcherCleanup,
@@ -14,7 +15,10 @@ import {
   type MaybeRefOrGetter,
 } from 'vue';
 
-import type { MaybeUndefinedResultRow } from './util-types';
+import type {
+  MaybeEmptyResultTable,
+  MaybeUndefinedResultRow,
+} from './util-types';
 
 export function useResultRowIdsListener<
   TSchemas extends OptionalSchemas
@@ -126,4 +130,52 @@ export function useResultRow<
   });
 
   return row;
+}
+
+export function useResultTableListener<TSchemas extends OptionalSchemas>(args: {
+  queryId: MaybeRefOrGetter<IdOrNull>;
+  listener: ResultTableListener<TSchemas>;
+  queries: Queries<TSchemas>;
+}) {
+  const { queries, queryId, listener } = args;
+
+  watch(
+    [() => toValue(queryId)],
+    ([newQueryId]) => {
+      let listenerId: Id;
+
+      if (queries) {
+        listenerId = queries.addResultTableListener(newQueryId, listener);
+      }
+
+      onWatcherCleanup(() => {
+        queries.delListener(listenerId);
+      });
+    },
+    { immediate: true }
+  );
+}
+
+export function useResultTable<
+  TResultTable extends MaybeEmptyResultTable,
+  TSchemas extends OptionalSchemas
+>(args: { queryId: MaybeRefOrGetter<string>; queries: Queries<TSchemas> }) {
+  const { queryId, queries } = args;
+  const resultTable = shallowRef(
+    queries.getResultTable(toValue(queryId)) as TResultTable
+  );
+
+  watch([() => toValue(queryId)], ([newQueryId]) => {
+    resultTable.value = queries.getResultTable(newQueryId);
+  });
+
+  useResultTableListener({
+    queries,
+    queryId,
+    listener: (queries) => {
+      resultTable.value = queries.getResultTable(toValue(queryId));
+    },
+  });
+
+  return resultTable;
 }

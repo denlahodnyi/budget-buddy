@@ -2,8 +2,10 @@
 @use '../tools' as t;
 
 @layer components.buttons {
+  $btn-size: t.px-to-rem(32px);
+
   .btn-base {
-    height: t.px-to-rem(32px);
+    height: $btn-size;
     padding-block: t.px-to-rem(4px);
     padding-inline: t.px-to-rem(8px);
     display: inline-flex;
@@ -52,8 +54,9 @@
   }
 
   :where(.btn[data-size='icon']) {
-    height: t.px-to-rem(32px);
-    width: t.px-to-rem(32px);
+    height: $btn-size;
+    width: $btn-size;
+    padding: 0;
   }
 
   :where(.btn[data-variant='ghost']) {

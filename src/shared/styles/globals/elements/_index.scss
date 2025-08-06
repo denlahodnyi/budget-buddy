@@ -43,6 +43,11 @@
     cursor: pointer;
   }
 
+  a {
+    color: var(t.get-color-var('primary'));
+    text-decoration: none;
+  }
+
   :focus-visible {
     outline: none;
     border-color: var(t.get-color-var('accent'));

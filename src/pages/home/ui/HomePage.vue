@@ -25,9 +25,10 @@ import WalletsCard from './WalletsCard.vue';
 .dashboard {
   max-height: inherit;
   overflow: inherit;
+  padding-block: 30px 40px;
   display: grid;
-  grid-template-rows: 1fr; // single row that expends the whole parent grid
   grid-template-columns: repeat(3, auto) 250px;
+  grid-template-rows: min-content min-content 1fr;
   grid-template-areas:
     'title title title title'
     'income expense balance wallets'

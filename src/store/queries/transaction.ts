@@ -65,3 +65,31 @@ export function setTransactionsCountPerCategoryQuery(
     },
   }))(queries);
 }
+
+export type TransactionsPerWalletQueryResult = Partial<{
+  id: string;
+  total: number;
+}>;
+
+export function setTransactionsCountPerWalletQuery(
+  queries: Queries<StoreSchema>,
+  walletIds: string[],
+  ...keys: QueryKeys
+) {
+  return createQuerySetter<StoreSchema, 'transactions'>('transactions', () => ({
+    queryKeys: [setTransactionsCountPerWalletQuery.name, ...walletIds, ...keys],
+    queryDefinition: ({ select, group, where }) => {
+      select('walletId').as(
+        'id' satisfies keyof TransactionsPerWalletQueryResult
+      );
+      select('walletId');
+      group('walletId', 'count').as(
+        'total' satisfies keyof TransactionsPerWalletQueryResult
+      );
+      where((getCell) => {
+        const walletId = getCell('walletId');
+        return walletId ? walletIds.includes(walletId) : false;
+      });
+    },
+  }))(queries);
+}

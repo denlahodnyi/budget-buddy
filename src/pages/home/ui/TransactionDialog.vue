@@ -26,7 +26,7 @@ import {
   SelectValue,
   SelectViewport,
 } from 'radix-vue';
-import { ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 import { CategorySelect } from '~/entities/category';
 import {
@@ -37,10 +37,13 @@ import {
   type Transaction,
 } from '~/entities/transaction';
 import { useCurrentUserId } from '~/entities/user';
-import { useUserBaseWallets } from '~/entities/wallet';
+import { useUserWallets } from '~/entities/wallet';
 import { createTransaction } from '~/features/transaction/create';
 import { editTransaction } from '~/features/transaction/edit';
-import { CurrencyInput } from '~/shared/ui/currency-input';
+import {
+  CurrencyInput,
+  type CurrencyInputProps,
+} from '~/shared/ui/currency-input';
 import { DatePicker } from '~/shared/ui/datepicker';
 import { FormMessage } from '~/shared/ui/form';
 import CategoriesDialog from './CategoriesDialog.vue';
@@ -52,7 +55,7 @@ type TransactionDialogProps = {
 const props = defineProps<TransactionDialogProps>();
 
 const userId = useCurrentUserId();
-const baseWallets = useUserBaseWallets(userId);
+const userWallets = useUserWallets(userId);
 
 const transaction = props.transactionId
   ? useTransaction(() => props.transactionId!)
@@ -76,7 +79,29 @@ const formState = ref<{
   description: transaction?.value.description ?? '',
 });
 const formErrors = shallowRef<CreatedTransactionErrors>({});
-const currencyInputOptions = ref({ currency: 'USD' });
+
+const currencyInputOptions = computed<CurrencyInputProps['options']>(() => {
+  const selectedWallet = userWallets.value.find(
+    (w) => w.id === formState.value.walletId
+  );
+  if (
+    selectedWallet?.currency?.type === 'crypto' ||
+    selectedWallet?.currency?.type === 'custom'
+  ) {
+    const { code, decimalPlaces } = selectedWallet.currency;
+    return {
+      currency: code,
+      precision: {
+        min: decimalPlaces,
+        max: decimalPlaces,
+      },
+      currencyDisplay: 'hidden',
+    };
+  } else if (selectedWallet?.currency) {
+    return { currency: selectedWallet.currency.code };
+  }
+  return { currency: 'USD' };
+});
 
 const saveTransaction = () => {
   const {
@@ -322,7 +347,7 @@ const handleDatepickerShow = () => {
                   <SelectContent class="select__content" position="popper">
                     <SelectViewport class="select__viewport">
                       <SelectItem
-                        v-for="wallet of baseWallets"
+                        v-for="wallet of userWallets"
                         :key="wallet.id"
                         :value="wallet.id"
                         class="select__item"

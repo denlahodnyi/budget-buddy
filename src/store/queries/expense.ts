@@ -26,7 +26,11 @@ export function setTotalExpenseByWalletQuery(
   }))(queries);
 }
 
-export type UserExpenseQueryResult = Partial<{ totalExpense: number }>;
+export type UserExpenseQueryResult = {
+  totalExpense: number;
+  code: string;
+  walletId: string;
+};
 
 export function setUserExpenseQuery(
   queries: Queries<StoreSchema>,
@@ -35,13 +39,17 @@ export function setUserExpenseQuery(
 ) {
   return createQuerySetter<StoreSchema, 'transactions'>('transactions', () => ({
     queryKeys: [setUserExpenseQuery.name, userId, ...keys],
-    queryDefinition: ({ select, where, group }) => {
+    queryDefinition: ({ select, where, group, join }) => {
       select('amount');
+      select('walletId');
+      select('currency', 'code');
       where('userId', userId);
       where('type', TRANSACTION_TYPES.EXPENSE);
       group('amount', 'sum').as(
         'totalExpense' satisfies keyof UserExpenseQueryResult
       );
+      join('wallets', 'walletId');
+      join('currencies', 'wallets', 'currencyId').as('currency');
     },
   }))(queries);
 }

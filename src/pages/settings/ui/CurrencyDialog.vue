@@ -210,7 +210,7 @@ const handleDialogOpenChange = (open: boolean) => {
           </div>
 
           <div v-if="formState.type !== 'fiat'" class="form__item">
-            <Label for="currency-code" class="label">Decimals</Label>
+            <Label for="currency-dec" class="label">Decimals</Label>
             <input
               id="currency-dec"
               v-model="formState.decimalPlaces"

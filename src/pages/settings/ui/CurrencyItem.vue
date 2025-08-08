@@ -43,12 +43,22 @@ const saveCustomRate = () => {
       </component>
       <div v-if="isCustom" class="currency-item__header-actions">
         <CurrencyDialog :currency-id="props.currencyId">
-          <button class="btn" data-variant="ghost" data-size="icon">
+          <button
+            class="btn"
+            data-variant="ghost"
+            data-size="icon"
+            aria-label="Edit currency"
+          >
             <PenIcon :size="16" />
           </button>
         </CurrencyDialog>
         <CurrencyDelAlert :currency-id="props.currencyId">
-          <button class="btn" data-variant="ghost" data-size="icon">
+          <button
+            class="btn"
+            data-variant="ghost"
+            data-size="icon"
+            aria-label="Delete currency"
+          >
             <TrashIcon :size="16" />
           </button>
         </CurrencyDelAlert>

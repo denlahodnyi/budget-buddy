@@ -27,9 +27,10 @@ const { ids: walletsIds } = useUserWalletsIds(userId);
     </div>
     <div role="list" class="wallets-list">
       <WalletItem
-        v-for="id of walletsIds"
+        v-for="(id, i) of walletsIds"
         :key="id"
         :wallet-id="id"
+        :data-testid="`wallet-${i}`"
         role="listitem"
       />
     </div>

@@ -17,8 +17,8 @@ const { data: liveRates } = useExchangeRates();
 <template>
   <div class="page">
     <RouterLink to="/" class="btn" data-variant="ghost">
-      <ArrowLeft />
-      Back
+      <ArrowLeft aria-hidden />
+      Back to dashboard
     </RouterLink>
     <h1 class="title">Settings</h1>
     <h2 class="sub-title">Currencies</h2>
@@ -37,6 +37,7 @@ const { data: liveRates } = useExchangeRates();
           "
           :base-currency-code="baseCurrency"
           :heading-level="3"
+          :data-testid="`currency-${c.code}`"
         />
       </template>
     </div>

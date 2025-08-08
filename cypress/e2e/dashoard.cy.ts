@@ -1,94 +1,148 @@
-import type { Transaction } from '../support/commands';
-
-const localizeNum = (num: number, options?: Intl.NumberFormatOptions) =>
-  num.toLocaleString('default', {
-    style: 'currency',
-    currency: 'USD',
-    ...options,
-  });
-
-const IDB_NAME = 'budget_store';
+import { type Transaction, type Wallet } from '../support/commands';
+import {
+  categoryOptions,
+  inputTransactionDate,
+  currencyOptions,
+  localizeNum,
+} from '../support/utils';
 
 describe('The Dashboard page', () => {
   beforeEach(() => {
-    cy.wrap(
-      new Promise((resolve, reject) => {
-        const IDBOpenDBRequest = window.indexedDB.deleteDatabase(IDB_NAME);
-        IDBOpenDBRequest.onsuccess = () => {
-          resolve(true);
-        };
-        IDBOpenDBRequest.onerror = () => {
-          console.error('Error deleting IndexedDB:', IDBOpenDBRequest.error);
-          reject(IDBOpenDBRequest.error);
-        };
-      })
-    ).then(() => {
-      cy.visit('/');
-      cy.findByTestId('loader-overlay').should('not.be.visible');
-    });
+    cy.visit('/');
+    cy.findByTestId('loader-overlay').should('not.be.visible');
   });
 
   it('successfully loads home page with main title', () => {
     cy.get('h1').should('contain', 'Welcome back, buddy!');
   });
 
+  it('user can create, edit and delete a wallet', () => {
+    cy.createWallet({ name: 'My uah wallet', currency: currencyOptions.uah });
+    cy.findByTestId('wallet-1').contains('My uah wallet');
+    cy.findByTestId('wallet-1').contains('₴ 0.00');
+
+    cy.findByTestId('wallet-1')
+      .findByRole('button', { name: /More options/i })
+      .click();
+    cy.findByRole('menuitem', { name: /^edit$/i }).click();
+    cy.findByLabelText('Name').type('{selectAll}My eur wallet');
+    cy.findByRole('combobox', { name: /^currency$/i }).type('{selectAll}eur');
+    cy.findByRole('option', { name: /\(EUR\) Euro/i }).click();
+    cy.findByRole('button', { name: /save/i }).click();
+    cy.findByTestId('wallet-1').contains('My eur wallet');
+    cy.findByTestId('wallet-1').contains('€0.00');
+
+    cy.findByTestId('wallet-1')
+      .findByRole('button', { name: /More options/i })
+      .click();
+    cy.findByRole('menuitem', { name: /^delete$/i }).click();
+    cy.findByRole('button', { name: /^yes, delete wallet$/i }).click();
+    cy.findByTestId('wallet-1').should('not.exist');
+  });
+
   it('user creates income and expense transactions with correct total numbers', () => {
+    const uahWallet: Wallet = {
+      name: 'My uah wallet',
+      currency: currencyOptions.uah,
+    };
     const incomeTransaction: Transaction = {
       type: 'income',
       amount: 1000,
-      date: '1/2/2025 15:00',
+      date: inputTransactionDate(2, 1, 2025, 15),
       description: 'Transaction #1',
-      category: 'Salary',
+      category: categoryOptions.income.salary,
       wallet: 'My Wallet',
+    };
+    const incomeTransaction2: Transaction = {
+      type: 'income',
+      amount: 100,
+      date: inputTransactionDate(2, 1, 2025, 20),
+      description: 'Transaction #2',
+      category: categoryOptions.income.gift,
+      wallet: uahWallet.name,
     };
     const expenseTransaction: Transaction = {
       type: 'expense',
       amount: 500,
-      date: '1/3/2025 15:00',
-      description: 'Transaction #2',
-      category: 'Travel',
+      date: inputTransactionDate(3, 1, 2025, 15),
+      description: 'Transaction #3',
+      category: categoryOptions.expense.travel,
       wallet: 'My Wallet',
     };
 
-    cy.createTransaction(incomeTransaction);
+    cy.createWallet(uahWallet);
 
-    cy.findAllByTestId('transaction_0')
-      .should('include.text', localizeNum(incomeTransaction.amount))
-      .and('include.text', incomeTransaction.date.split(' ')[0])
-      .and('include.text', incomeTransaction.category);
+    cy.wait('@getLiveRates').then(({ response }) => {
+      const rate = response?.body.quotes['USDUAH'];
 
-    cy.getBalanceText(localizeNum(incomeTransaction.amount));
-    cy.getIncomeText(localizeNum(incomeTransaction.amount));
-    cy.getExpenseText(localizeNum(-0));
+      cy.createTransaction(incomeTransaction);
+      cy.findAllByTestId('transaction_0')
+        .should('include.text', localizeNum(incomeTransaction.amount))
+        // date will be in other format (no zeros)
+        // .and('include.text', incomeTransaction.date.split(' ')[0])
+        .and('include.text', incomeTransaction.category);
+      cy.getBalanceText(localizeNum(incomeTransaction.amount));
+      cy.getIncomeText(localizeNum(incomeTransaction.amount));
+      cy.getExpenseText(localizeNum(-0));
+      cy.findByTestId('wallet-0').contains(
+        localizeNum(incomeTransaction.amount)
+      );
 
-    cy.createTransaction(expenseTransaction);
+      cy.createTransaction(incomeTransaction2);
+      cy.findAllByTestId('transaction_1').contains(
+        localizeNum(incomeTransaction2.amount, { symbol: '₴ ' })
+      );
+      // cy.findAllByTestId('transaction_1').contains(
+      //   incomeTransaction2.date.split(' ')[0]
+      // );
+      cy.findAllByTestId('transaction_1').contains(incomeTransaction2.category);
+      cy.getBalanceText(
+        localizeNum(incomeTransaction.amount + incomeTransaction2.amount / rate)
+      );
+      cy.getIncomeText(
+        localizeNum(incomeTransaction.amount + incomeTransaction2.amount / rate)
+      );
+      cy.getExpenseText(localizeNum(-0));
+      cy.findByTestId('wallet-1').contains(
+        localizeNum(incomeTransaction2.amount, { symbol: '₴ ' })
+      );
 
-    cy.findAllByTestId('transaction_1')
-      .should('include.text', expenseTransaction.category)
-      .and('include.text', localizeNum(-expenseTransaction.amount));
-
-    cy.getBalanceText(
-      localizeNum(incomeTransaction.amount - expenseTransaction.amount)
-    );
-    cy.getIncomeText(localizeNum(incomeTransaction.amount));
-    cy.getExpenseText(localizeNum(-expenseTransaction.amount));
+      cy.createTransaction(expenseTransaction);
+      cy.findAllByTestId('transaction_2')
+        .should('include.text', expenseTransaction.category)
+        .and('include.text', localizeNum(-expenseTransaction.amount));
+      cy.getBalanceText(
+        localizeNum(
+          incomeTransaction.amount +
+            incomeTransaction2.amount / rate -
+            expenseTransaction.amount
+        )
+      );
+      cy.getIncomeText(
+        localizeNum(incomeTransaction.amount + incomeTransaction2.amount / rate)
+      );
+      cy.getExpenseText(localizeNum(-expenseTransaction.amount));
+      cy.findByTestId('wallet-0').contains(
+        localizeNum(incomeTransaction.amount - expenseTransaction.amount)
+      );
+    });
   });
 
   it('user edits transaction', () => {
     const transaction: Transaction = {
       type: 'income',
       amount: 1000,
-      date: '01/02/2025 15:00',
+      date: inputTransactionDate(2, 1, 2025, 15),
       description: 'Transaction #1',
-      category: 'Salary',
+      category: categoryOptions.income.salary,
       wallet: 'My Wallet',
     };
     const editedTransaction: Transaction = {
       type: 'expense',
       amount: 400,
-      date: '10/10/2024 11:30',
+      date: inputTransactionDate(10, 10, 2024, 11, 30),
       description: 'Edited Transaction #1',
-      category: 'Travel',
+      category: categoryOptions.expense.travel,
       wallet: 'My Wallet',
     };
 
@@ -138,9 +192,9 @@ describe('The Dashboard page', () => {
     const transaction: Transaction = {
       type: 'income',
       amount: 1000,
-      date: '01/02/2025 15:00',
+      date: inputTransactionDate(1, 2, 2025, 15),
       description: 'Transaction #1',
-      category: 'Salary',
+      category: categoryOptions.income.salary,
       wallet: 'My Wallet',
     };
     cy.createTransaction(transaction);

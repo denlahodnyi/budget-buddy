@@ -19,11 +19,12 @@ export interface Transaction {
   wallet: string;
 }
 
-Cypress.Commands.add('findAddTransactionButton', () =>
-  cy.findByRole('button', { name: /^add new$/i })
-);
+export interface Wallet {
+  name: string;
+  currency: string;
+}
 
-Cypress.Commands.add('createTransaction', (transaction: Transaction) => {
+Cypress.Commands.add('skipSelectException', () => {
   Cypress.on('uncaught:exception', (error) => {
     const errors = [
       "Cannot read properties of null (reading 'focus')",
@@ -33,6 +34,14 @@ Cypress.Commands.add('createTransaction', (transaction: Transaction) => {
       return false;
     }
   });
+});
+
+Cypress.Commands.add('findAddTransactionButton', () =>
+  cy.findByRole('button', { name: /^add new$/i })
+);
+
+Cypress.Commands.add('createTransaction', (transaction: Transaction) => {
+  cy.skipSelectException();
 
   cy.findAddTransactionButton().click();
   cy.findByRole('combobox', { name: /transaction type/i }).click();
@@ -52,6 +61,14 @@ Cypress.Commands.add('createTransaction', (transaction: Transaction) => {
   });
   cy.findByRole('button', { name: /save/i }).click();
   cy.findByRole('button', { name: /close dialog/i }).click();
+});
+
+Cypress.Commands.add('createWallet', (wallet: Wallet) => {
+  cy.findByRole('button', { name: /add new wallet/i }).click();
+  cy.findByLabelText('Name').type(wallet.name);
+  cy.findByRole('combobox', { name: /^currency$/i }).type(wallet.currency);
+  cy.findByRole('option', { name: wallet.currency }).click();
+  cy.findByRole('button', { name: /save/i }).click();
 });
 
 Cypress.Commands.add('getBalanceText', (balanceText: string) => {
@@ -79,7 +96,9 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
+      skipSelectException(): Chainable<void>;
       createTransaction(transaction: Transaction): Chainable<void>;
+      createWallet(wallet: Wallet): Chainable<void>;
       getBalanceText(balanceText: string): Chainable<JQuery<HTMLElement>>;
       getIncomeText(incomeText: string): Chainable<JQuery<HTMLElement>>;
       getExpenseText(expenseText: string): Chainable<JQuery<HTMLElement>>;

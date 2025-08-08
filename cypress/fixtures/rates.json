@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "quotes": {
+    "USDEUR": 2,
+    "USDCAD": 3,
+    "USDUAH": 10
+  }
+}

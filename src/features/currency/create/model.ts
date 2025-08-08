@@ -21,18 +21,25 @@ export function createCurrency(c: CreatedCurrency) {
   }
 
   const indexes = createIndexes(store);
-  indexes.setIndexDefinition(
-    'sameCurrencies',
-    'currencies',
-    (getCell) => `${getCell('userId')}_${getCell('code')}`
-  );
-  const existedCurrenciesIds = indexes.getSliceRowIds(
+  indexes.setIndexDefinition('sameCurrencies', 'currencies', (getCell) => {
+    const userId = getCell('userId');
+    const code = getCell('code');
+    return userId ? `${userId}_${code}` : code!;
+  });
+  const existedCustomCurrenciesIds = indexes.getSliceRowIds(
     'sameCurrencies',
     `${obj.userId}_${obj.code}`
   );
+  const existedPredefinedCurrenciesIds = indexes.getSliceRowIds(
+    'sameCurrencies',
+    obj.code
+  );
   indexes.delIndexDefinition('sameCurrencies');
 
-  if (existedCurrenciesIds.length > 0) {
+  if (
+    existedPredefinedCurrenciesIds.length > 0 ||
+    existedCustomCurrenciesIds.length > 0
+  ) {
     return { success: false, errors: { code: 'Must be unique' } } as const;
   }
 

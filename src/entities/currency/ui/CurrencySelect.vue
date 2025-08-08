@@ -38,7 +38,7 @@ const filterFunc = (ids: string[]) => {
     ? ids
     : Object.keys(currencies.value).filter((cId) => {
         const c = currencies.value[cId]!;
-        return `${c.code} ${c.name}`
+        return `(${c.code}) ${c.name}`
           .toLowerCase()
           .includes(searchTerm.value.toLowerCase());
       });

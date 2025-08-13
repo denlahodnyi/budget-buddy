@@ -5,6 +5,7 @@ import { createQueries, createStore } from 'tinybase/with-schemas';
 import { CATEGORY_COLORS, CATEGORY_ICONS } from './data/categories';
 import categoriesData from './data/categories.json';
 import { DEFAULT_CURRENCIES } from './data/currencies';
+import { setMockData } from './data/mocks';
 import { storeTablesSchema, storeValuesSchema } from './store-config';
 
 const LOCAL_DB_NAME = 'budget_store';
@@ -47,6 +48,7 @@ async function initiateStorePersister() {
       DEFAULT_CURRENCIES.forEach((c) => {
         s.addRow('currencies', c);
       });
+      setMockData(s); // TODO: enable for dev only?
       s.setValue('firstInit', false);
     });
   }

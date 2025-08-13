@@ -38,7 +38,7 @@ export const storeTablesSchema = {
   transactions: {
     type: { type: 'string', default: TRANSACTION_TYPES.INCOME },
     amount: { type: 'number', default: 0 },
-    createdAt: { type: 'string', default: new Date().toISOString() },
+    createdAt: { type: 'number', default: Date.now() },
     userId: { type: 'string' }, // Reference to user
     walletId: { type: 'string' }, // Reference to wallet
     categoryId: { type: 'string' },

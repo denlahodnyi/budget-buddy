@@ -11,6 +11,7 @@ import {
   useResultRowIds,
   useResultRowIdsListener,
   useResultRowListener,
+  useResultSortedRowIdsListener,
   useResultTable,
   useResultTableListener,
 } from './query';
@@ -274,7 +275,7 @@ describe('The useResultTableListener composable', () => {
   });
 });
 
-describe.only('The useResultTable composable', () => {
+describe('The useResultTable composable', () => {
   it('returns the current result table and updates when it changes', () => {
     const store = createTestStore();
     const { queries } = createTestStoreQueries(store);
@@ -334,5 +335,67 @@ describe.only('The useResultTable composable', () => {
     expect(resultTable.value).toEqual({
       garry: { species: 'cat', color: 'green' },
     });
+  });
+});
+
+describe('The useResultSortedRowIdsListener composable', () => {
+  it('calls listener when query changes', () => {
+    const store = createTestStore();
+    const { queries } = createTestStoreQueries(store);
+    const listener = vi.fn();
+
+    useResultSortedRowIdsListener({
+      queries,
+      queryId: () => 'dogSpeciesQuery',
+      descending: false,
+      offset: 0,
+      listener,
+    });
+
+    store.setRow('pets', 'felix', { species: 'cat' });
+    store.setRow('pets', 'garry', { species: 'dog' }); // this one triggers the query
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenLastCalledWith(
+      queries,
+      'dogSpeciesQuery',
+      undefined,
+      false,
+      0,
+      undefined,
+      ['fido', 'garry']
+    );
+  });
+
+  it('registers new listener when queryId changes', async () => {
+    const store = createTestStore();
+    const { queries } = createTestStoreQueries(store);
+    const queryId = ref('dogSpeciesQuery');
+    const listener = vi.fn();
+
+    useResultSortedRowIdsListener({
+      queries,
+      queryId,
+      descending: false,
+      offset: 0,
+      listener,
+    });
+
+    store.setRow('pets', 'felix', { species: 'dog' });
+    queryId.value = 'catSpeciesQuery';
+    // wait for watcher cleanup
+    await flushPromises();
+    store.setRow('pets', 'garry', { species: 'cat' });
+
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(listener).toHaveBeenLastCalledWith(
+      queries,
+      'catSpeciesQuery',
+      undefined,
+      false,
+      0,
+      undefined,
+      ['garry']
+    );
   });
 });

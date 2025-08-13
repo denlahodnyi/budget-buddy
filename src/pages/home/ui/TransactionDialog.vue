@@ -32,9 +32,9 @@ import { CategorySelect } from '~/entities/category';
 import {
   DESCRIPTION_MAX_LENGTH,
   useTransaction,
+  type BaseTransaction,
   type CreatedTransaction,
   type CreatedTransactionErrors,
-  type Transaction,
 } from '~/entities/transaction';
 import { useCurrentUserId } from '~/entities/user';
 import { useUserWallets } from '~/entities/wallet';
@@ -62,12 +62,12 @@ const transaction = props.transactionId
   : null;
 
 const formState = ref<{
-  transactionType: Transaction['type'];
-  categoryId: Transaction['categoryId'];
-  walletId: Transaction['walletId'];
-  amount: Transaction['amount'];
+  transactionType: BaseTransaction['type'];
+  categoryId: BaseTransaction['categoryId'];
+  walletId: BaseTransaction['walletId'];
+  amount: BaseTransaction['amount'];
   createdAt: Date;
-  description?: Transaction['description'];
+  description?: BaseTransaction['description'];
 }>({
   transactionType: transaction?.value.type ?? 'income',
   categoryId: transaction?.value.categoryId ?? '',
@@ -118,7 +118,7 @@ const saveTransaction = () => {
     amount,
     description,
     walletId,
-    createdAt: createdAt.toISOString(),
+    createdAt: createdAt.getTime(),
     userId: userId.value,
   };
 

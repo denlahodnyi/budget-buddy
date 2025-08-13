@@ -7,9 +7,12 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from 'radix-vue';
-import { ref, toRef } from 'vue';
+import { ref } from 'vue';
 
-import { useTransaction } from '~/entities/transaction';
+import {
+  type Transaction,
+  type TransactionPopulatedWith,
+} from '~/entities/transaction';
 import { deleteTransaction } from '~/features/transaction/delete';
 import { CATEGORY_COLORS, CATEGORY_ICONS } from '~/store';
 import TransactionDelAlert from './TransactionDelAlert.vue';
@@ -17,11 +20,15 @@ import TransactionDialog from './TransactionDialog.vue';
 
 interface TransactionProps {
   id: string;
+  item: TransactionPopulatedWith<
+    Transaction,
+    { category: true; wallet: true; currency: true }
+  >;
 }
 
 const props = defineProps<TransactionProps>();
 
-const t = useTransaction(toRef(() => props.id));
+const t = props.item;
 const isActionsDropdownOpen = ref(false);
 const isEditDialogOpen = ref(false);
 const isAlertOpen = ref(false);
@@ -43,20 +50,20 @@ function handleDropdownOpenChange(open: boolean) {
 <template>
   <section class="transaction" :data-testid="`transaction_${props.id}`">
     <div
-      :style="{ backgroundColor: CATEGORY_COLORS[t.category.color] }"
+      :style="{ backgroundColor: CATEGORY_COLORS[t.category!.color] }"
       class="transaction__color-indicator"
     />
     <component
-      :is="CATEGORY_ICONS[t.category.icon]"
+      :is="CATEGORY_ICONS[t.category!.icon]"
       class="transaction__icon"
     />
     <div>
-      <p class="transaction__name">{{ t.category.name }}</p>
+      <p class="transaction__name">{{ t.category!.name }}</p>
       <p class="transaction__date">
         {{ new Date(t.createdAt).toLocaleDateString() }}
       </p>
     </div>
-    <p class="transaction__wallet">{{ t.wallet.name }}</p>
+    <p class="transaction__wallet">{{ t.wallet!.name }}</p>
     <p
       :class="[
         'transaction__amount',

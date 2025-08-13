@@ -1,4 +1,3 @@
-import { upperFirst } from 'lodash-es';
 import type {
   Group,
   Having,
@@ -89,7 +88,7 @@ export function selectAll<TTableId extends TableIds>(
       sel.as(
         typeof asPrefixOrExtractor === 'function'
           ? asPrefixOrExtractor(field)
-          : `${asPrefixOrExtractor}${upperFirst(field)}`
+          : `${asPrefixOrExtractor}.${field}`
       );
   });
 }

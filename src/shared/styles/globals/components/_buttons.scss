@@ -37,13 +37,13 @@
     color: var(--_color);
     background-color: var(--_bg);
 
-    &:disabled {
+    &:where(:disabled) {
       --_hover-transparency: 0%;
       opacity: var(--_disabled-opacity);
       cursor: default;
     }
 
-    &:hover {
+    &:where(:not(:disabled):hover) {
       color: var(--_hover-color);
       background-color: color-mix(
         in hsl,

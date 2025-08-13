@@ -1,5 +1,6 @@
 import {
   enums,
+  integer,
   nonempty,
   object,
   optional,
@@ -10,27 +11,52 @@ import {
   type Infer,
 } from 'superstruct';
 import type { Row } from 'tinybase/with-schemas';
-import { computed, toValue, type MaybeRefOrGetter } from 'vue';
-
-import { formatCurrency } from '~/shared/lib/money';
-import { coerceToNumber, positive } from '~/shared/lib/superstruct';
-import { useResultRowIds, useRow } from '~/shared/lib/tiny-base';
 import {
-  CURRENCY_TYPES,
+  computed,
+  shallowRef,
+  toRef,
+  toValue,
+  watch,
+  type MaybeRefOrGetter,
+} from 'vue';
+
+import { coerceToNumber, positive } from '~/shared/lib/superstruct';
+import {
+  useResultRowCount,
+  useResultSortedRowIds,
+  useRow,
+} from '~/shared/lib/tiny-base';
+import {
   queries,
   setUserTransactionsQuery,
   store,
   TRANSACTION_TYPES,
   type storeTablesSchema,
   type TransactionType,
+  type UserTransactionsQueryResultRow,
 } from '~/store';
 import type { Category } from '../category';
-import type { BaseCurrency } from '../currency';
+import { formatAmountByCurrency, type BaseCurrency } from '../currency';
 import type { BaseWallet } from '../wallet';
 
 export const DESCRIPTION_MAX_LENGTH = 200;
+export const PER_PAGE = 10;
 
 type StoredTransaction = Row<typeof storeTablesSchema, 'transactions'>;
+
+export type TransactionPopulatedWith<
+  TBase extends StoredTransaction,
+  TPopulated extends { wallet: boolean; category: boolean; currency: boolean }
+> = TBase &
+  ((TPopulated['category'] extends true
+    ? { category: Category | null }
+    : object) &
+    (TPopulated['wallet'] extends true
+      ? { wallet: BaseWallet | null }
+      : object) &
+    (TPopulated['currency'] extends true
+      ? { currency: BaseCurrency | null }
+      : object));
 
 export interface BaseTransaction extends StoredTransaction {
   type: TransactionType;
@@ -40,15 +66,13 @@ export interface BaseTransaction extends StoredTransaction {
 }
 
 export interface Transaction extends BaseTransaction {
-  category: Category;
-  wallet: BaseWallet;
   formattedAmount: string;
 }
 
 export const CreatedTransactionScheme: Describe<BaseTransaction> = object({
   type: enums([TRANSACTION_TYPES.INCOME, TRANSACTION_TYPES.EXPENSE]),
   amount: positive(coerceToNumber()),
-  createdAt: nonempty(trimmed(string())),
+  createdAt: integer(),
   userId: nonempty(trimmed(string())),
   walletId: nonempty(trimmed(string())),
   categoryId: nonempty(trimmed(string())),
@@ -61,12 +85,87 @@ export type CreatedTransactionErrors = {
   [Key in keyof CreatedTransaction]?: string;
 };
 
-export function useTransactions(userId: MaybeRefOrGetter<string>) {
-  const { queryId, queries: q } = setUserTransactionsQuery(
-    queries,
-    toValue(userId)
+export function useUserTransactionsQuery<
+  TPopulatedWithWallet extends boolean = false,
+  TPopulatedWithCategory extends boolean = false,
+  TPopulatedWithCurrency extends boolean = false
+>(
+  userId: MaybeRefOrGetter<string>,
+  populatedWith?: {
+    wallet: TPopulatedWithWallet;
+    category: TPopulatedWithCategory;
+    currency: TPopulatedWithCurrency;
+  }
+) {
+  const settledQuery = shallowRef(
+    setUserTransactionsQuery(queries, toValue(userId), {
+      wallet: populatedWith?.wallet ?? false,
+      category: populatedWith?.category ?? false,
+      currency: populatedWith?.currency ?? false,
+    })
   );
-  return useResultRowIds({ queryId: () => queryId, queries: q });
+  watch(
+    () => toValue(userId),
+    (newUserId) => {
+      settledQuery.value = setUserTransactionsQuery(queries, newUserId, {
+        wallet: populatedWith?.wallet ?? false,
+        category: populatedWith?.category ?? false,
+        currency: populatedWith?.currency ?? false,
+      });
+    }
+  );
+
+  return {
+    queryId: toRef(settledQuery.value.queryId),
+    queries,
+    toTypedResultRow: (row: unknown) => row as UserTransactionsQueryResultRow,
+    adaptResultRow: (row: UserTransactionsQueryResultRow) => {
+      const result = setUserTransactionsQuery.transformResult(row);
+      const formattedAmount = result.currency
+        ? formatAmountByCurrency(
+            (result.type as Transaction['type']) === 'income'
+              ? result.amount
+              : -result.amount,
+            result.currency as BaseCurrency
+          )
+        : '';
+
+      return { ...result, formattedAmount } as TransactionPopulatedWith<
+        Transaction,
+        {
+          category: TPopulatedWithCategory;
+          wallet: TPopulatedWithWallet;
+          currency: TPopulatedWithCurrency;
+        }
+      >;
+    },
+  };
+}
+
+export function useTransactionsIds(
+  userId: MaybeRefOrGetter<string>,
+  options?: {
+    offset?: MaybeRefOrGetter<number>;
+  }
+) {
+  const { queryId, queries } = useUserTransactionsQuery(userId);
+
+  const ids = useResultSortedRowIds({
+    queryId,
+    queries,
+    cellId: 'createdAt',
+    descending: true,
+    offset: options?.offset ?? 0,
+    limit: PER_PAGE,
+  });
+
+  return { ids, queryId };
+}
+
+export function useTransactionsCount(userId: MaybeRefOrGetter<string>) {
+  const { queryId, queries } = useUserTransactionsQuery(userId);
+
+  return useResultRowCount({ queryId, queries });
 }
 
 export function useTransaction(transactionId: MaybeRefOrGetter<string>) {
@@ -85,34 +184,34 @@ export function useTransaction(transactionId: MaybeRefOrGetter<string>) {
     tableId: () => 'wallets',
     rowId: () => (t.value as Transaction).walletId,
   });
-  return computed<Transaction>(() => {
+
+  return computed(() => {
+    const transaction = t.value as BaseTransaction;
     const currency = store.getRow(
       'currencies',
       wallet.value.currencyId
     ) as BaseCurrency;
-    const isCrypto =
-      currency.type === CURRENCY_TYPES.CRYPTO ||
-      currency.type === CURRENCY_TYPES.CUSTOM;
 
-    return {
-      ...(t.value as BaseTransaction),
-      category: category.value as Transaction['category'],
-      wallet: wallet.value as Transaction['wallet'],
-      formattedAmount: formatCurrency(
-        (t.value.type as Transaction['type']) === 'income'
-          ? t.value.amount
-          : -t.value.amount,
-        {
-          currency: currency.code,
-          symbol: currency.symbol,
-          ...(isCrypto
-            ? {
-                minDecimals: 0,
-                maxDecimals: currency.decimalPlaces,
-              }
-            : {}),
-        }
+    const result: TransactionPopulatedWith<
+      Transaction,
+      {
+        category: true;
+        wallet: true;
+        currency: true;
+      }
+    > = {
+      ...transaction,
+      category: category.value as Category,
+      wallet: wallet.value as BaseWallet,
+      currency,
+      formattedAmount: formatAmountByCurrency(
+        transaction.type === 'income'
+          ? transaction.amount
+          : -transaction.amount,
+        currency
       ),
     };
+
+    return result;
   });
 }

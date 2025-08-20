@@ -1,10 +1,12 @@
 @use '../tools/' as t;
 
+$item-pl: 20px;
+
 // .dropdown {
 // }
 
 .dropdown__content {
-  min-width: t.px-to-rem(50px);
+  min-inline-size: t.px-to-rem(50px);
   padding: 5px;
   border-radius: t.px-to-rem(6px);
   box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
@@ -30,8 +32,9 @@
 
 .dropdown__item {
   position: relative;
-  height: t.px-to-rem(30px);
+  block-size: t.px-to-rem(30px);
   padding: 0 t.px-to-rem(10px);
+  padding-inline-start: $item-pl;
   display: flex;
   align-items: center;
   gap: t.px-to-rem(12px);
@@ -56,6 +59,37 @@
     background-color: var(t.get-color-var('accent'));
     color: var(t.get-color-var('accent-foreground'));
   }
+}
+
+.dropdown__menu-item-indicator {
+  position: absolute;
+  inset-inline-start: 0;
+  inline-size: $item-pl;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown__menu-label {
+  padding: t.px-to-rem(5px) t.px-to-rem(10px);
+  padding-inline-start: $item-pl;
+  display: flex;
+  align-items: center;
+  gap: t.px-to-rem(8px);
+  font-size: t.px-to-rem(16px);
+  line-height: t.lh-ratio(14px);
+  color: var(t.get-color-var('muted-foreground'));
+  font-weight: 500;
+}
+
+.dropdown__arrow {
+  fill: var(t.get-color-var('popover'));
+}
+
+.dropdown__separator {
+  height: 1px;
+  background-color: var(t.get-color-var('border'));
+  margin: 5px 0;
 }
 
 @keyframes slideUpAndFade {

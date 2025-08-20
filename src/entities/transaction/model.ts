@@ -17,6 +17,7 @@ import {
   toRef,
   toValue,
   watch,
+  type MaybeRef,
   type MaybeRefOrGetter,
 } from 'vue';
 
@@ -33,6 +34,7 @@ import {
   TRANSACTION_TYPES,
   type storeTablesSchema,
   type TransactionType,
+  type UserTransactionsQueryFilters,
   type UserTransactionsQueryResultRow,
 } from '~/store';
 import type { Category } from '../category';
@@ -85,12 +87,15 @@ export type CreatedTransactionErrors = {
   [Key in keyof CreatedTransaction]?: string;
 };
 
+export type TransactionsFilters = UserTransactionsQueryFilters;
+
 export function useUserTransactionsQuery<
   TPopulatedWithWallet extends boolean = false,
   TPopulatedWithCategory extends boolean = false,
   TPopulatedWithCurrency extends boolean = false
 >(
   userId: MaybeRefOrGetter<string>,
+  filterBy?: MaybeRef<TransactionsFilters>,
   populatedWith?: {
     wallet: TPopulatedWithWallet;
     category: TPopulatedWithCategory;
@@ -98,25 +103,30 @@ export function useUserTransactionsQuery<
   }
 ) {
   const settledQuery = shallowRef(
-    setUserTransactionsQuery(queries, toValue(userId), {
+    setUserTransactionsQuery(queries, toValue(userId), toValue(filterBy), {
       wallet: populatedWith?.wallet ?? false,
       category: populatedWith?.category ?? false,
       currency: populatedWith?.currency ?? false,
     })
   );
   watch(
-    () => toValue(userId),
-    (newUserId) => {
-      settledQuery.value = setUserTransactionsQuery(queries, newUserId, {
-        wallet: populatedWith?.wallet ?? false,
-        category: populatedWith?.category ?? false,
-        currency: populatedWith?.currency ?? false,
-      });
+    [() => toValue(userId), () => toValue(filterBy)],
+    ([newUserId, newFilterBy]) => {
+      settledQuery.value = setUserTransactionsQuery(
+        queries,
+        newUserId,
+        newFilterBy,
+        {
+          wallet: populatedWith?.wallet ?? false,
+          category: populatedWith?.category ?? false,
+          currency: populatedWith?.currency ?? false,
+        }
+      );
     }
   );
 
   return {
-    queryId: toRef(settledQuery.value.queryId),
+    queryId: toRef(() => settledQuery.value.queryId),
     queries,
     toTypedResultRow: (row: unknown) => row as UserTransactionsQueryResultRow,
     adaptResultRow: (row: UserTransactionsQueryResultRow) => {
@@ -162,8 +172,11 @@ export function useTransactionsIds(
   return { ids, queryId };
 }
 
-export function useTransactionsCount(userId: MaybeRefOrGetter<string>) {
-  const { queryId, queries } = useUserTransactionsQuery(userId);
+export function useTransactionsCount(
+  userId: MaybeRefOrGetter<string>,
+  filterBy?: MaybeRef<TransactionsFilters>
+) {
+  const { queryId, queries } = useUserTransactionsQuery(userId, filterBy);
 
   return useResultRowCount({ queryId, queries });
 }

@@ -2,6 +2,13 @@
 @use '../settings' as s;
 @use 'functions' as f;
 
+@mixin focus-vis {
+  outline: none;
+  border-color: var(f.get-color-var('accent'));
+  box-shadow: 0 0 0 3px var(f.get-color-var('ring'));
+  transition: box-shadow 0.2s ease-in-out;
+}
+
 @mixin text-size($px-fs) {
   $lh-ratio: lh-ratio($px-fs);
   font-size: $fs;

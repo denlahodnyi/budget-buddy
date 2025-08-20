@@ -1,6 +1,6 @@
 import type { Queries, Row } from 'tinybase/with-schemas';
 
-import { type StoreSchema } from '../store-config';
+import { type StoreSchema, type TransactionType } from '../store-config';
 import type { QueryKeys, RowWithPrefixedCellIds } from './util-types';
 import { createQuerySetter, selectAll } from './utils';
 
@@ -56,9 +56,18 @@ export type UserTransactionsQueryResultTransformedRow = Row<
   currency: null | Row<StoreSchema[0], 'currencies'>;
 };
 
+export interface UserTransactionsQueryFilters {
+  types?: Record<TransactionType, boolean>;
+  dates?: null | {
+    from: number;
+    to: number;
+  };
+}
+
 export function setUserTransactionsQuery(
   queries: Queries<StoreSchema>,
   userId: string,
+  filterBy?: UserTransactionsQueryFilters,
   populateWith: { wallet: boolean; category: boolean; currency: boolean } = {
     wallet: false,
     category: false,
@@ -67,10 +76,31 @@ export function setUserTransactionsQuery(
   ...keys: QueryKeys
 ) {
   return createQuerySetter<StoreSchema, 'transactions'>('transactions', () => ({
-    queryKeys: [setUserTransactionsQuery.name, userId, populateWith, ...keys],
+    queryKeys: [
+      setUserTransactionsQuery.name,
+      userId,
+      populateWith,
+      filterBy,
+      ...keys,
+    ],
     queryDefinition: ({ select, where, join }) => {
       selectAll(select, 'transactions');
       where('userId', userId);
+
+      if (filterBy?.types) {
+        where((getCell) => {
+          const type = getCell('type');
+          return filterBy.types![type as TransactionType] ?? true;
+        });
+      }
+      if (filterBy?.dates) {
+        where((getCell) => {
+          const createdAt = getCell('createdAt')!;
+          return (
+            createdAt >= filterBy.dates!.from && createdAt <= filterBy.dates!.to
+          );
+        });
+      }
 
       if (populateWith.wallet) {
         selectAll(

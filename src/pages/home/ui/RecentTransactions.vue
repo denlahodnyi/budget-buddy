@@ -114,10 +114,10 @@ const handleResetFilters = (
     <div role="list" class="transactions-list">
       <ResultSortedTableView
         v-slot="slotProps"
-        :cell-id="sortBy.includes('amount') ? 'amount' : 'date'"
+        :cell-id="sortBy.includes('amount') ? 'amount' : 'createdAt'"
         :queries="queries"
         :query-id="queryId"
-        :descending="sortBy.includes('asc')"
+        :descending="sortBy.includes('desc')"
         :offset="currentOffset"
         :limit="PER_PAGE"
       >

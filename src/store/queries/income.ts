@@ -35,16 +35,23 @@ export type UserIncomeQueryResult = {
 export function setUserIncomeQuery(
   queries: Queries<StoreSchema>,
   userId: string,
+  filterBy?: { startDate?: number; endDate?: number },
   ...keys: QueryKeys
 ) {
   return createQuerySetter<StoreSchema, 'transactions'>('transactions', () => ({
-    queryKeys: [setUserIncomeQuery.name, userId, ...keys],
+    queryKeys: [setUserIncomeQuery.name, userId, filterBy, ...keys],
     queryDefinition: ({ select, where, group, join }) => {
       select('amount');
       select('walletId');
       select('currency', 'code');
       where('userId', userId);
       where('type', TRANSACTION_TYPES.INCOME);
+      if (filterBy?.startDate) {
+        where((getCell) => getCell('createdAt')! >= filterBy.startDate!);
+      }
+      if (filterBy?.endDate) {
+        where((getCell) => getCell('createdAt')! <= filterBy.endDate!);
+      }
       group('amount', 'sum').as(
         'totalIncome' satisfies keyof UserIncomeQueryResult
       );

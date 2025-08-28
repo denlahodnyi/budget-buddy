@@ -35,16 +35,23 @@ export type UserExpenseQueryResult = {
 export function setUserExpenseQuery(
   queries: Queries<StoreSchema>,
   userId: string,
+  filterBy?: { startDate?: number; endDate?: number },
   ...keys: QueryKeys
 ) {
   return createQuerySetter<StoreSchema, 'transactions'>('transactions', () => ({
-    queryKeys: [setUserExpenseQuery.name, userId, ...keys],
+    queryKeys: [setUserExpenseQuery.name, userId, filterBy, ...keys],
     queryDefinition: ({ select, where, group, join }) => {
       select('amount');
       select('walletId');
       select('currency', 'code');
       where('userId', userId);
       where('type', TRANSACTION_TYPES.EXPENSE);
+      if (filterBy?.startDate) {
+        where((getCell) => getCell('createdAt')! >= filterBy.startDate!);
+      }
+      if (filterBy?.endDate) {
+        where((getCell) => getCell('createdAt')! <= filterBy.endDate!);
+      }
       group('amount', 'sum').as(
         'totalExpense' satisfies keyof UserExpenseQueryResult
       );

@@ -211,6 +211,109 @@ export function useUserIncome(userId: MaybeRefOrGetter<string>) {
   });
 }
 
+export function useUserIncomeTrend(userId: MaybeRefOrGetter<string>) {
+  const now = new Date();
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const currentMonthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+
+  const prevMonthRange = [prevMonthStart.getTime(), prevMonthEnd.getTime()];
+  const currentMonthRange = [
+    currentMonthStart.getTime(),
+    currentMonthEnd.getTime(),
+  ];
+
+  const prevMonthIncomeQuery = shallowRef(
+    setUserIncomeQuery(queries, toValue(userId), {
+      startDate: prevMonthRange[0],
+      endDate: prevMonthRange[1],
+    })
+  );
+  const currentMonthIncomeQuery = shallowRef(
+    setUserIncomeQuery(queries, toValue(userId), {
+      startDate: currentMonthRange[0],
+      endDate: currentMonthRange[1],
+    })
+  );
+
+  watch(
+    () => toValue(userId),
+    (newUserId) => {
+      prevMonthIncomeQuery.value = setUserIncomeQuery(queries, newUserId, {
+        startDate: prevMonthRange[0],
+        endDate: prevMonthRange[1],
+      });
+      currentMonthIncomeQuery.value = setUserIncomeQuery(queries, newUserId, {
+        startDate: currentMonthRange[0],
+        endDate: currentMonthRange[1],
+      });
+    }
+  );
+
+  const prevMonthIncomeResult = useResultTable<
+    Record<string, UserIncomeQueryResult>,
+    StoreSchema
+  >({
+    queries,
+    queryId: () => prevMonthIncomeQuery.value.queryId,
+  });
+  const currentMonthIncomeResult = useResultTable<
+    Record<string, UserIncomeQueryResult>,
+    StoreSchema
+  >({
+    queries,
+    queryId: () => currentMonthIncomeQuery.value.queryId,
+  });
+  const { data: liveRates } = useExchangeRates();
+
+  return computed(() => {
+    const totalPrevMonthIncome = Object.entries(
+      prevMonthIncomeResult.value
+    ).reduce((sum, [_, { code, totalIncome }]) => {
+      return (
+        sum +
+        totalIncome / getCurrencyRate(toValue(userId), code, liveRates.value)
+      );
+    }, 0);
+    const totalCurrentMonthIncome = Object.entries(
+      currentMonthIncomeResult.value
+    ).reduce((sum, [_, { code, totalIncome }]) => {
+      return (
+        sum +
+        totalIncome / getCurrencyRate(toValue(userId), code, liveRates.value)
+      );
+    }, 0);
+    const change =
+      totalPrevMonthIncome === 0
+        ? 100
+        : ((totalCurrentMonthIncome - totalPrevMonthIncome) /
+            Math.abs(totalPrevMonthIncome)) *
+          100;
+
+    return {
+      change,
+      formattedChange: `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`,
+    };
+  });
+}
+
 export function useUserExpense(userId: MaybeRefOrGetter<string>) {
   const settledQuery = shallowRef(
     setUserExpenseQuery(queries, toValue(userId))
@@ -243,6 +346,109 @@ export function useUserExpense(userId: MaybeRefOrGetter<string>) {
     return {
       expense: totalExpense ?? 0,
       formattedTotalExpense: formatCurrency(-(totalExpense || 0)),
+    };
+  });
+}
+
+export function useUserExpenseTrend(userId: MaybeRefOrGetter<string>) {
+  const now = new Date();
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const currentMonthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  );
+
+  const prevMonthRange = [prevMonthStart.getTime(), prevMonthEnd.getTime()];
+  const currentMonthRange = [
+    currentMonthStart.getTime(),
+    currentMonthEnd.getTime(),
+  ];
+
+  const prevMonthExpenseQuery = shallowRef(
+    setUserExpenseQuery(queries, toValue(userId), {
+      startDate: prevMonthRange[0],
+      endDate: prevMonthRange[1],
+    })
+  );
+  const currentMonthExpenseQuery = shallowRef(
+    setUserExpenseQuery(queries, toValue(userId), {
+      startDate: currentMonthRange[0],
+      endDate: currentMonthRange[1],
+    })
+  );
+
+  watch(
+    () => toValue(userId),
+    (newUserId) => {
+      prevMonthExpenseQuery.value = setUserExpenseQuery(queries, newUserId, {
+        startDate: prevMonthRange[0],
+        endDate: prevMonthRange[1],
+      });
+      currentMonthExpenseQuery.value = setUserExpenseQuery(queries, newUserId, {
+        startDate: currentMonthRange[0],
+        endDate: currentMonthRange[1],
+      });
+    }
+  );
+
+  const prevMonthExpenseResult = useResultTable<
+    Record<string, UserExpenseQueryResult>,
+    StoreSchema
+  >({
+    queries,
+    queryId: () => prevMonthExpenseQuery.value.queryId,
+  });
+  const currentMonthIncomeResult = useResultTable<
+    Record<string, UserExpenseQueryResult>,
+    StoreSchema
+  >({
+    queries,
+    queryId: () => currentMonthExpenseQuery.value.queryId,
+  });
+  const { data: liveRates } = useExchangeRates();
+
+  return computed(() => {
+    const totalPrevMonthExpense = Object.entries(
+      prevMonthExpenseResult.value
+    ).reduce((sum, [_, { code, totalExpense }]) => {
+      return (
+        sum +
+        totalExpense / getCurrencyRate(toValue(userId), code, liveRates.value)
+      );
+    }, 0);
+    const totalCurrentMonthExpense = Object.entries(
+      currentMonthIncomeResult.value
+    ).reduce((sum, [_, { code, totalExpense }]) => {
+      return (
+        sum +
+        totalExpense / getCurrencyRate(toValue(userId), code, liveRates.value)
+      );
+    }, 0);
+    const change =
+      totalPrevMonthExpense === 0
+        ? 100
+        : ((totalCurrentMonthExpense - totalPrevMonthExpense) /
+            Math.abs(totalPrevMonthExpense)) *
+          100;
+
+    return {
+      change,
+      formattedChange: `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`,
     };
   });
 }

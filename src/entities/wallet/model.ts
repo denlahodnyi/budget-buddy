@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash-es';
 import {
   nonempty,
   object,
@@ -308,6 +309,8 @@ export function useUserIncomeTrend(userId: MaybeRefOrGetter<string>) {
           100;
 
     return {
+      prevMonthIncome: totalPrevMonthIncome,
+      currentMonthIncome: totalCurrentMonthIncome,
       change,
       formattedChange: `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`,
     };
@@ -447,9 +450,85 @@ export function useUserExpenseTrend(userId: MaybeRefOrGetter<string>) {
           100;
 
     return {
+      prevMonthExpense: totalPrevMonthExpense,
+      currentMonthExpense: totalCurrentMonthExpense,
       change,
       formattedChange: `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`,
     };
+  });
+}
+
+export function useUserExpenseByCategories(userId: MaybeRefOrGetter<string>) {
+  const now = new Date();
+  const intervalStart = new Date(now.getFullYear(), now.getMonth() - 3, 1); // last 3 months
+  const interval = [intervalStart.getTime(), now.getTime()];
+
+  const intervalExpenseQuery = shallowRef(
+    setUserExpenseQuery(queries, toValue(userId), {
+      startDate: interval[0],
+      endDate: interval[1],
+    })
+  );
+
+  watch(
+    () => toValue(userId),
+    (newUserId) => {
+      intervalExpenseQuery.value = setUserExpenseQuery(queries, newUserId, {
+        startDate: interval[0],
+        endDate: interval[1],
+      });
+    }
+  );
+
+  const intervalExpenseResult = useResultTable<
+    Record<string, UserExpenseQueryResult>,
+    StoreSchema
+  >({
+    queries,
+    queryId: () => intervalExpenseQuery.value.queryId,
+  });
+
+  const { data: liveRates } = useExchangeRates();
+
+  return computed(() => {
+    type ExpenseByCategoryMap = Record<
+      string,
+      {
+        total: number;
+        formattedTotal: string;
+        category: string;
+        colorId: string;
+      }
+    >;
+
+    if (isEmpty(intervalExpenseResult.value)) {
+      return null;
+    }
+
+    const expensesByCategory = Object.entries(
+      intervalExpenseResult.value
+    ).reduce((prev, current) => {
+      const [, { category, categoryColor, code, totalExpense }] = current;
+      const prevCategory = prev[category] || {
+        total: 0,
+        category,
+        colorId: categoryColor,
+      };
+      const total = (
+        prevCategory.total +
+        totalExpense / getCurrencyRate(toValue(userId), code, liveRates.value)
+      ).toFixed(2);
+      return {
+        ...prev,
+        [category]: {
+          ...prevCategory,
+          total: parseFloat(total),
+          formattedTotal: formatCurrency(parseFloat(total)),
+        },
+      };
+    }, {} as ExpenseByCategoryMap);
+
+    return Object.values(expensesByCategory);
   });
 }
 

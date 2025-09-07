@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BalanceCard from './BalanceCard.vue';
 import ExpenseCard from './ExpenseCard.vue';
+import ExpensesOverviewCard from './ExpensesOverviewCard.vue';
 import IncomeCard from './IncomeCard.vue';
 import RecentTransactions from './RecentTransactions.vue';
 import WalletsCard from './WalletsCard.vue';
@@ -14,6 +15,7 @@ import WalletsCard from './WalletsCard.vue';
     <BalanceCard class="grid-block" data-area="balance" />
     <IncomeCard class="grid-block" data-area="income" />
     <ExpenseCard class="grid-block" data-area="expense" />
+    <ExpensesOverviewCard class="grid-block" data-area="expenseOverview" />
     <WalletsCard class="grid-block" data-area="wallets" />
     <RecentTransactions class="grid-block" data-area="transactions" />
   </div>
@@ -27,11 +29,12 @@ import WalletsCard from './WalletsCard.vue';
   overflow: inherit;
   padding-block: 30px 40px;
   display: grid;
-  grid-template-columns: repeat(3, auto) 250px;
+  grid-template-columns: repeat(3, 1fr) 250px;
   grid-template-rows: min-content min-content 1fr;
   grid-template-areas:
     'title title title title'
     'income expense balance wallets'
+    'expenseOverview . . wallets'
     'transactions transactions transactions wallets';
   gap: 16px;
 }
@@ -50,6 +53,9 @@ import WalletsCard from './WalletsCard.vue';
 }
 .grid-block[data-area='expense'] {
   grid-area: expense;
+}
+.grid-block[data-area='expenseOverview'] {
+  grid-area: expenseOverview;
 }
 .grid-block[data-area='transactions'] {
   grid-area: transactions;

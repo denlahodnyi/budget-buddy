@@ -24,12 +24,12 @@ import { CogIcon } from 'lucide-vue-next';
 
 .app-layout {
   min-height: 100svh;
-  max-height: 110svh;
+  // max-height: 150svh;
   display: grid;
   grid-template-columns:
     1fr [content-start] min(100% - 60px, t.px-to-rem(1024px))
     [content-end] 1fr;
-  grid-template-rows: min-content 1fr;
+  grid-template-rows: min-content min-content min-content 1fr;
 
   & > * {
     grid-column: content;
@@ -39,6 +39,7 @@ import { CogIcon } from 'lucide-vue-next';
 .app-header {
   position: sticky;
   top: 0;
+  z-index: var(t.get-z-var('middle'));
   padding-block: 20px;
   display: flex;
   align-items: center;

@@ -30,6 +30,8 @@ export type UserExpenseQueryResult = {
   totalExpense: number;
   code: string;
   walletId: string;
+  category: string;
+  categoryColor: string;
 };
 
 export function setUserExpenseQuery(
@@ -44,6 +46,8 @@ export function setUserExpenseQuery(
       select('amount');
       select('walletId');
       select('currency', 'code');
+      select('category', 'name').as('category');
+      select('category', 'color').as('categoryColor');
       where('userId', userId);
       where('type', TRANSACTION_TYPES.EXPENSE);
       if (filterBy?.startDate) {
@@ -57,6 +61,7 @@ export function setUserExpenseQuery(
       );
       join('wallets', 'walletId');
       join('currencies', 'wallets', 'currencyId').as('currency');
+      join('categories', 'categoryId').as('category');
     },
   }))(queries);
 }

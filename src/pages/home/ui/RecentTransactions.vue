@@ -111,7 +111,7 @@ const handleResetFilters = (
         <button class="btn"><PlusIcon :size="20" />Add new</button>
       </TransactionDialog>
     </div>
-    <div role="list" class="transactions-list">
+    <div v-if="count > 0" role="list" class="transactions-list">
       <ResultSortedTableView
         v-slot="slotProps"
         :cell-id="sortBy.includes('amount') ? 'amount' : 'createdAt'"
@@ -127,9 +127,10 @@ const handleResetFilters = (
         />
       </ResultSortedTableView>
     </div>
+    <p v-else class="empty-content">No transactions yet</p>
     <PaginationRoot
+      v-show="count > PER_PAGE"
       v-model:page="currentPage"
-      :v-show="count > PER_PAGE"
       :total="count"
       :sibling-count="1"
       class="pagination"
@@ -184,6 +185,12 @@ const handleResetFilters = (
 
 <style lang="scss" scoped>
 @use '@globals/tools' as t;
+
+.empty-content {
+  padding-block: 20px;
+  color: var(t.get-color-var('muted-foreground'));
+  text-align: center;
+}
 
 .transactions-list {
   overflow: auto;

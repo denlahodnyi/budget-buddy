@@ -3,6 +3,7 @@ import { TrendingDownIcon, TrendingUpIcon } from 'lucide-vue-next';
 
 import { useCurrentUserId } from '~/entities/user';
 import { useUserIncome, useUserIncomeTrend } from '~/entities/wallet';
+import MainCardValue from './MainCardValue.vue';
 
 const userId = useCurrentUserId();
 const income = useUserIncome(userId);
@@ -14,8 +15,14 @@ const trend = useUserIncomeTrend(userId);
     <div class="card__header">
       <h2 class="card__title">Income</h2>
     </div>
-    <p>{{ income.formattedTotalIncome }}</p>
-    <p v-if="trend.change !== 0" class="income-card__trend">
+    <MainCardValue>{{ income.formattedTotalIncome }}</MainCardValue>
+    <p
+      v-if="!trend.currentMonthIncome && !trend.prevMonthIncome"
+      class="income-card__trend"
+    >
+      No activity
+    </p>
+    <p v-else-if="trend.change !== 0" class="income-card__trend">
       <span
         :class="[
           'income-card__trend-value',

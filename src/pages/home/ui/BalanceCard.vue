@@ -11,13 +11,14 @@ import {
 
 import { useCurrentUserId } from '~/entities/user';
 import { useUserBalance } from '~/entities/wallet';
+import MainCardValue from './MainCardValue.vue';
 
 const userId = useCurrentUserId();
 const totalBalance = useUserBalance(userId);
 </script>
 
 <template>
-  <section class="card">
+  <section class="card balance-card">
     <div class="card__header">
       <h2 class="card__title">My balance</h2>
     </div>
@@ -44,7 +45,9 @@ const totalBalance = useUserBalance(userId);
           </TooltipPortal>
         </TooltipRoot>
       </TooltipProvider>
-      <p>{{ totalBalance.formattedBalance }}</p>
+      <MainCardValue>
+        {{ totalBalance.formattedBalance }}
+      </MainCardValue>
     </span>
   </section>
 </template>

@@ -61,5 +61,8 @@
     "onlyBuiltDependencies": [
       "cypress"
     ]
+  },
+  "engines": {
+    "pnpm": ">=10.16"
   }
 }

@@ -18,6 +18,11 @@ import {
   type MaybeRefOrGetter,
 } from 'vue';
 
+import {
+  getCurrentMonthInterval,
+  getLastNMonthsInterval,
+  getPrevMonthInterval,
+} from '~/shared/lib/dates';
 import { formatCurrency } from '~/shared/lib/money';
 import {
   useResultRow,
@@ -33,7 +38,9 @@ import {
   setTotalExpenseByWalletQuery,
   setTotalIncomeByWalletQuery,
   setUserBalanceQuery,
+  setUserExpenseByDateQuery,
   setUserExpenseQuery,
+  setUserIncomeByDateQuery,
   setUserIncomeQuery,
   setUserWalletsQuery,
   store,
@@ -43,7 +50,9 @@ import {
   type TotalExpenseByWalletQueryResult,
   type TotalIncomeByWalletQueryResult,
   type UserBalanceQueryResult,
+  type UserExpenseByDateQueryResult,
   type UserExpenseQueryResult,
+  type UserIncomeByDateQueryResult,
   type UserIncomeQueryResult,
   type UserWalletsQueryResultRow,
 } from '~/store';
@@ -213,27 +222,8 @@ export function useUserIncome(userId: MaybeRefOrGetter<string>) {
 }
 
 export function useUserIncomeTrend(userId: MaybeRefOrGetter<string>) {
-  const now = new Date();
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const prevMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    0,
-    23,
-    59,
-    59,
-    999
-  );
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const currentMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0,
-    23,
-    59,
-    59,
-    999
-  );
+  const [prevMonthStart, prevMonthEnd] = getPrevMonthInterval();
+  const [currentMonthStart, currentMonthEnd] = getCurrentMonthInterval();
 
   const prevMonthRange = [prevMonthStart.getTime(), prevMonthEnd.getTime()];
   const currentMonthRange = [
@@ -354,27 +344,8 @@ export function useUserExpense(userId: MaybeRefOrGetter<string>) {
 }
 
 export function useUserExpenseTrend(userId: MaybeRefOrGetter<string>) {
-  const now = new Date();
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const prevMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    0,
-    23,
-    59,
-    59,
-    999
-  );
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const currentMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0,
-    23,
-    59,
-    59,
-    999
-  );
+  const [prevMonthStart, prevMonthEnd] = getPrevMonthInterval();
+  const [currentMonthStart, currentMonthEnd] = getCurrentMonthInterval();
 
   const prevMonthRange = [prevMonthStart.getTime(), prevMonthEnd.getTime()];
   const currentMonthRange = [
@@ -459,9 +430,8 @@ export function useUserExpenseTrend(userId: MaybeRefOrGetter<string>) {
 }
 
 export function useUserExpenseByCategories(userId: MaybeRefOrGetter<string>) {
-  const now = new Date();
-  const intervalStart = new Date(now.getFullYear(), now.getMonth() - 3, 1); // last 3 months
-  const interval = [intervalStart.getTime(), now.getTime()];
+  const [start, end] = getLastNMonthsInterval(3);
+  const interval = [start.getTime(), end.getTime()];
 
   const intervalExpenseQuery = shallowRef(
     setUserExpenseQuery(queries, toValue(userId), {
@@ -529,6 +499,153 @@ export function useUserExpenseByCategories(userId: MaybeRefOrGetter<string>) {
     }, {} as ExpenseByCategoryMap);
 
     return Object.values(expensesByCategory);
+  });
+}
+
+export function useUserTotalIncomeByDates(
+  userId: MaybeRefOrGetter<string>,
+  filterBy: MaybeRefOrGetter<{ startDate: number; endDate: number }>
+) {
+  const incomeQuery = shallowRef(
+    setUserIncomeByDateQuery(queries, toValue(userId), 'day', {
+      startDate: toValue(filterBy).startDate,
+      endDate: toValue(filterBy).endDate,
+    })
+  );
+
+  watch(
+    [() => toValue(userId), () => toValue(filterBy)],
+    ([newUserId, newFilterBy]) => {
+      incomeQuery.value = setUserIncomeByDateQuery(queries, newUserId, 'day', {
+        startDate: newFilterBy.startDate,
+        endDate: newFilterBy.endDate,
+      });
+    }
+  );
+
+  const incomeByDatesResult = useResultTable<
+    Record<string, UserIncomeByDateQueryResult>,
+    StoreSchema
+  >({
+    queries,
+    queryId: () => incomeQuery.value.queryId,
+  });
+
+  const { data: liveRates } = useExchangeRates();
+
+  return computed(() => {
+    type IncomeByDatesMap = Record<
+      number,
+      {
+        total: number;
+        formattedTotal: string;
+        date: number;
+      }
+    >;
+
+    if (isEmpty(incomeByDatesResult.value)) {
+      return null;
+    }
+
+    const expensesByCategory = Object.entries(incomeByDatesResult.value).reduce(
+      (prev, current) => {
+        const [, { code, date, totalIncome }] = current;
+        const prevCategory = prev[date] || {
+          total: 0,
+          date,
+        };
+        const total = (
+          prevCategory.total +
+          totalIncome / getCurrencyRate(toValue(userId), code, liveRates.value)
+        ).toFixed(2);
+        return {
+          ...prev,
+          [date]: {
+            ...prevCategory,
+            total: parseFloat(total),
+            formattedTotal: formatCurrency(parseFloat(total)),
+          },
+        };
+      },
+      {} as IncomeByDatesMap
+    );
+
+    return Object.values(expensesByCategory).sort((d1, d2) =>
+      d1.date > d2.date ? 1 : -1
+    );
+  });
+}
+
+export function useUserTotalExpenseByDates(
+  userId: MaybeRefOrGetter<string>,
+  filterBy: MaybeRefOrGetter<{ startDate: number; endDate: number }>
+) {
+  const incomeQuery = shallowRef(
+    setUserExpenseByDateQuery(queries, toValue(userId), 'day', {
+      startDate: toValue(filterBy).startDate,
+      endDate: toValue(filterBy).endDate,
+    })
+  );
+
+  watch(
+    [() => toValue(userId), () => toValue(filterBy)],
+    ([newUserId, newFilterBy]) => {
+      incomeQuery.value = setUserExpenseByDateQuery(queries, newUserId, 'day', {
+        startDate: newFilterBy.startDate,
+        endDate: newFilterBy.endDate,
+      });
+    }
+  );
+
+  const expenseByDatesResult = useResultTable<
+    Record<string, UserExpenseByDateQueryResult>,
+    StoreSchema
+  >({
+    queries,
+    queryId: () => incomeQuery.value.queryId,
+  });
+
+  const { data: liveRates } = useExchangeRates();
+
+  return computed(() => {
+    type ExpenseByDatesMap = Record<
+      number,
+      {
+        total: number;
+        formattedTotal: string;
+        date: number;
+      }
+    >;
+
+    if (isEmpty(expenseByDatesResult.value)) {
+      return null;
+    }
+
+    const expensesByCategory = Object.entries(
+      expenseByDatesResult.value
+    ).reduce((prev, current) => {
+      const [, { code, date, totalExpense }] = current;
+      const prevCategory = prev[date] || {
+        total: 0,
+        date,
+      };
+      const total = (
+        prevCategory.total +
+        totalExpense / getCurrencyRate(toValue(userId), code, liveRates.value)
+      ).toFixed(2);
+      return {
+        ...prev,
+        [date]: {
+          ...prevCategory,
+          total: parseFloat(total),
+          formattedTotal: formatCurrency(-parseFloat(total)),
+        },
+      };
+    }, {} as ExpenseByDatesMap);
+
+    return Object.values(expensesByCategory).sort((d1, d2) =>
+      d1.date > d2.date ? 1 : -1
+    );
   });
 }
 

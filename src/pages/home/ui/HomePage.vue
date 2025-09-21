@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BalanceCard from './BalanceCard.vue';
+import StatisticCard from './charts/StatisticCard.vue';
 import ExpenseCard from './ExpenseCard.vue';
 import ExpensesOverviewCard from './ExpensesOverviewCard.vue';
 import IncomeCard from './IncomeCard.vue';
@@ -16,6 +17,7 @@ import WalletsCard from './WalletsCard.vue';
     <IncomeCard class="grid-block" data-area="income" />
     <ExpenseCard class="grid-block" data-area="expense" />
     <ExpensesOverviewCard class="grid-block" data-area="expenseOverview" />
+    <StatisticCard class="grid-block" data-area="statistics" />
     <WalletsCard class="grid-block" data-area="wallets" />
     <RecentTransactions class="grid-block" data-area="transactions" />
   </div>
@@ -34,7 +36,7 @@ import WalletsCard from './WalletsCard.vue';
   grid-template-areas:
     'title title title title'
     'income expense balance wallets'
-    'expenseOverview . . wallets'
+    'expenseOverview statistics statistics wallets'
     'transactions transactions transactions wallets';
   gap: 16px;
 }
@@ -56,6 +58,9 @@ import WalletsCard from './WalletsCard.vue';
 }
 .grid-block[data-area='expenseOverview'] {
   grid-area: expenseOverview;
+}
+.grid-block[data-area='statistics'] {
+  grid-area: statistics;
 }
 .grid-block[data-area='transactions'] {
   grid-area: transactions;

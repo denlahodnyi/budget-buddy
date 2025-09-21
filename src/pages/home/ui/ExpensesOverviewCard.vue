@@ -1,36 +1,51 @@
 <script setup lang="ts">
 import { ArcElement, Chart, Legend, Tooltip, type ChartData } from 'chart.js';
 import { computed, toValue } from 'vue';
-import { Doughnut } from 'vue-chartjs';
+import { Doughnut, type ChartProps } from 'vue-chartjs';
 
 import { useCurrentUserId } from '~/entities/user';
 import { useUserExpenseByCategories } from '~/entities/wallet';
+import { CATEGORY_COLORS } from '~/store';
 
 Chart.register(ArcElement, Tooltip, Legend);
 
 const userId = useCurrentUserId();
 const dataRef = useUserExpenseByCategories(userId);
 
-const chartData = computed<ChartData<'doughnut', number[], unknown>>(() => {
-  const data = toValue(dataRef);
-  return {
-    labels: data ? data.map((item) => item.category) : [],
-    datasets: [
-      {
-        label: 'Expenses by Category',
-        data: data as unknown as number[],
-        parsing: {
-          key: 'total',
+type DatasetDataItem = {
+  total: number;
+  formattedTotal: string;
+  category: string;
+  colorId: string;
+};
+
+const chartData = computed<ChartData<'doughnut', DatasetDataItem[], unknown>>(
+  () => {
+    const data = toValue(dataRef);
+    return {
+      labels: data ? data.map((item) => item.category) : [],
+      datasets: [
+        {
+          label: 'Expenses by Category',
+          data: data ?? [],
+          parsing: {
+            key: 'total',
+          },
+          backgroundColor: data
+            ? data.map(
+                (item) =>
+                  CATEGORY_COLORS[item.colorId as keyof typeof CATEGORY_COLORS]
+              )
+            : [],
+          borderWidth: 2,
+          borderRadius: 10,
+          offset: 15,
         },
-        backgroundColor: data ? data.map((item) => item.colorId) : [],
-        borderWidth: 2,
-        borderRadius: 10,
-        offset: 15,
-      },
-    ],
-  };
-});
-const chartOptions: InstanceType<typeof Doughnut>['$props']['options'] = {
+      ],
+    };
+  }
+);
+const chartOptions: ChartProps<'doughnut'>['options'] = {
   cutout: '60%',
   radius: '60%',
   aspectRatio: 2,
@@ -42,9 +57,7 @@ const chartOptions: InstanceType<typeof Doughnut>['$props']['options'] = {
     tooltip: {
       callbacks: {
         label({ raw, dataset }) {
-          return `${dataset.label}: ${
-            (raw as NonNullable<typeof dataRef.value>[number]).formattedTotal
-          }`;
+          return `${dataset.label}: ${(raw as DatasetDataItem).formattedTotal}`;
         },
       },
     },
@@ -76,7 +89,10 @@ const chartOptions: InstanceType<typeof Doughnut>['$props']['options'] = {
         minHeight: dataRef ? `${300 + dataRef.length * 10}px` : 'auto',
       }"
     >
-      <Doughnut :data="chartData" :options="chartOptions" />
+      <Doughnut
+        :data="chartData as unknown as ChartData<'doughnut', number[], unknown>"
+        :options="chartOptions"
+      />
     </div>
     <p v-else class="empty-content">No expenses recorded yet</p>
   </section>

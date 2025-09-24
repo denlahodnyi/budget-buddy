@@ -182,7 +182,7 @@ export function useCategoriesIds(
     queries,
   });
 
-  return { ids, queryId: toRef(settledQuery.value.queryId) };
+  return { ids, queryId: toRef(() => settledQuery.value.queryId) };
 }
 
 export function useFullCategories(

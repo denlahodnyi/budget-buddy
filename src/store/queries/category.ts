@@ -21,7 +21,7 @@ export function setParentOnlyCategoriesQuery(
       selectAll(select, 'categories');
       where(
         (getCell) =>
-          getCell('userId') === userId &&
+          (getCell('userId') === userId || !getCell('userId')) &&
           !getCell('parentId') &&
           (categoryType ? getCell('type') === categoryType : true)
       );
@@ -62,7 +62,7 @@ export function setFullCategoriesQuery(
       selectAll(select, 'categories');
       where(
         (getCell) =>
-          getCell('userId') === userId &&
+          (getCell('userId') === userId || !getCell('userId')) &&
           (onlyParents ? !getCell('parentId') : true) &&
           (categoryType ? getCell('type') === categoryType : true)
       );

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { CogIcon } from 'lucide-vue-next';
+
+import UserSwitch from './ui/UserSwitch.vue';
 </script>
 
 <template>
   <div class="app-layout">
-    <header class="app-header">
+    <header id="app-header" class="app-header">
+      <UserSwitch mount-to="#app-header" />
       <RouterLink
         to="/settings"
         aria-label="Settings link"
@@ -44,6 +47,7 @@ import { CogIcon } from 'lucide-vue-next';
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 20px;
   border-bottom: 1px solid var(t.get-color-var('border'));
   background-color: var(t.get-color-var('background'));
 }

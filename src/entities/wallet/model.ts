@@ -670,7 +670,7 @@ export function useUserWalletsQuery<
   );
 
   return {
-    queryId: toRef(settledQuery.value.queryId),
+    queryId: toRef(() => settledQuery.value.queryId),
     queries,
     toTypedResultRow: (row: unknown) => row as UserWalletsQueryResultRow,
     adaptResultRow: (row: UserWalletsQueryResultRow) => {

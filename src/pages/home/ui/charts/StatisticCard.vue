@@ -171,9 +171,16 @@ function formatTimestamp(date: number) {
 </template>
 
 <style lang="scss" scoped>
+@use '@globals/tools' as t;
+
 .stats__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.empty-content {
+  padding: 20px 0;
+  color: var(t.get-color-var('muted-foreground'));
+  text-align: center;
 }
 </style>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ArrowLeft } from 'lucide-vue-next';
+import { toRef } from 'vue';
 
 import { useExchangeRates, useUserCurrencies } from '~/entities/currency';
-import { useCurrentUserId } from '~/entities/user';
+import { useCurrentUser, useCurrentUserId } from '~/entities/user';
+import { UserForm, useUserForm } from '~/features/user/create-and-edit';
+import { UserDelAlert } from '~/features/user/delete';
 import CurrencyDialog from './CurrencyDialog.vue';
 import CurrencyItem from './CurrencyItem.vue';
 import ExchangeRateUpdater from './ExchangeRateUpdater.vue';
@@ -10,8 +13,14 @@ import ExchangeRateUpdater from './ExchangeRateUpdater.vue';
 const baseCurrency = 'USD';
 
 const userId = useCurrentUserId();
+const currentUser = useCurrentUser();
 const currencies = useUserCurrencies(userId);
 const { data: liveRates } = useExchangeRates();
+const { formState, formErrors, isDirty, submit } = useUserForm({
+  isEdit: true,
+  userId,
+  defaultValues: toRef(() => ({ name: currentUser.value.name })),
+});
 </script>
 
 <template>
@@ -21,6 +30,29 @@ const { data: liveRates } = useExchangeRates();
       Back to dashboard
     </RouterLink>
     <h1 class="title">Settings</h1>
+    <h2 class="sub-title">Profile</h2>
+    <div class="user-section">
+      <UserForm
+        v-model:name="formState.name"
+        :form-errors="formErrors"
+        @submit.prevent="submit"
+      >
+        <template #actions>
+          <button
+            type="submit"
+            class="btn user-section__submit-btn"
+            :disabled="!isDirty"
+          >
+            Update user details
+          </button>
+        </template>
+      </UserForm>
+      <UserDelAlert :user-id="userId">
+        <button class="btn user-section__del-btn" data-variant="destructive">
+          Delete user
+        </button>
+      </UserDelAlert>
+    </div>
     <h2 class="sub-title">Currencies</h2>
     <div class="stack">
       <div>
@@ -60,6 +92,9 @@ const { data: liveRates } = useExchangeRates();
 }
 .sub-title {
   margin-block-end: t.px-to-rem(15px);
+  &:not(:first-of-type) {
+    margin-block-start: t.px-to-rem(30px);
+  }
 }
 .stack {
   display: flex;
@@ -68,5 +103,17 @@ const { data: liveRates } = useExchangeRates();
 }
 .action-btn {
   margin-block-start: t.px-to-rem(15px);
+}
+.user-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-inline-size: 300px;
+}
+.user-section__submit-btn {
+  inline-size: 100%;
+}
+.user-section__del-btn {
+  margin-block-start: 20px;
 }
 </style>

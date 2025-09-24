@@ -48,7 +48,9 @@ async function initiateStorePersister() {
       DEFAULT_CURRENCIES.forEach((c) => {
         s.addRow('currencies', c);
       });
-      setMockData(s); // TODO: enable for dev only?
+      if (import.meta.env.DEV && import.meta.env.MODE !== 'unmocked') {
+        setMockData(s);
+      }
       s.setValue('firstInit', false);
     });
   }
@@ -57,10 +59,10 @@ async function initiateStorePersister() {
 function setCategories(s: typeof store) {
   categoriesData.forEach((cat) => {
     const { children, ...rest } = cat;
-    const rowId = s.addRow('categories', { ...rest, userId: '0' });
+    const rowId = s.addRow('categories', { ...rest });
     if (children) {
       children.forEach((ch) => {
-        s.addRow('categories', { ...ch, parentId: rowId, userId: '0' });
+        s.addRow('categories', { ...ch, parentId: rowId });
       });
     }
   });

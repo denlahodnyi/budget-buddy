@@ -1,8 +1,8 @@
 import { type Transaction, type Wallet } from '../support/commands';
 import {
   categoryOptions,
-  inputTransactionDate,
   currencyOptions,
+  inputTransactionDate,
   localizeNum,
 } from '../support/utils';
 
@@ -18,10 +18,12 @@ describe('The Dashboard page', () => {
 
   it('user can create, edit and delete a wallet', () => {
     cy.createWallet({ name: 'My uah wallet', currency: currencyOptions.uah });
-    cy.findByTestId('wallet-1').contains('My uah wallet');
-    cy.findByTestId('wallet-1').contains('₴ 0.00');
+    cy.findByText('My uah wallet')
+      .closest('article')
+      .as('uaWalletCard')
+      .contains('₴ 0.00');
 
-    cy.findByTestId('wallet-1')
+    cy.get('@uaWalletCard')
       .findByRole('button', { name: /More options/i })
       .click();
     cy.findByRole('menuitem', { name: /^edit$/i }).click();
@@ -29,15 +31,18 @@ describe('The Dashboard page', () => {
     cy.findByRole('combobox', { name: /^currency$/i }).type('{selectAll}eur');
     cy.findByRole('option', { name: /\(EUR\) Euro/i }).click();
     cy.findByRole('button', { name: /save/i }).click();
-    cy.findByTestId('wallet-1').contains('My eur wallet');
-    cy.findByTestId('wallet-1').contains('€0.00');
+    cy.findByText('My eur wallet')
+      .closest('article')
+      .as('euWalletCard')
+      .contains('€0.00');
 
-    cy.findByTestId('wallet-1')
+    cy.get('@euWalletCard')
       .findByRole('button', { name: /More options/i })
       .click();
     cy.findByRole('menuitem', { name: /^delete$/i }).click();
     cy.findByRole('button', { name: /^yes, delete wallet$/i }).click();
-    cy.findByTestId('wallet-1').should('not.exist');
+    // cy.findByTestId('wallet-1').should('not.exist');
+    cy.findByText('My eur wallet').should('not.exist');
   });
 
   it('user creates income and expense transactions with correct total numbers', () => {
@@ -422,6 +427,28 @@ describe('The Dashboard page', () => {
     cy.findByTestId('transaction_1').should(
       'contain.text',
       'Other / Miscellaneous'
+    );
+  });
+
+  it('user can add more users', () => {
+    cy.findByRole('button', { name: /switch or create user/i }).contains(
+      'User #1'
+    );
+    cy.findByRole('button', { name: /switch or create user/i }).click();
+    cy.findByRole('button', { name: /add new user/i }).click();
+    cy.findByLabelText('Name').type('User #2');
+    cy.findByRole('button', { name: /save/i }).click();
+    cy.findByRole('menuitemradio', { name: /User #2/i });
+  });
+
+  it('user can switch profile', () => {
+    cy.findByRole('button', { name: /switch or create user/i }).click();
+    cy.findByRole('button', { name: /add new user/i }).click();
+    cy.findByLabelText('Name').type('User #2');
+    cy.findByRole('button', { name: /save/i }).click();
+    cy.findByRole('menuitemradio', { name: /User #2/i }).click();
+    cy.findByRole('button', { name: /switch or create user/i }).contains(
+      'User #2'
     );
   });
 });

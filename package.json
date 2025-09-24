@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:unmocked": "vite --mode unmocked",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest",

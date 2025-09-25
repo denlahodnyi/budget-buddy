@@ -58,7 +58,12 @@ export function useResultRowIds<TSchemas extends OptionalSchemas>(args: {
     () => toValue(queryId),
     (newQueryId) => {
       ids.value = queries.getResultRowIds(newQueryId);
-    }
+
+      onWatcherCleanup(() => {
+        queries.delQueryDefinition(newQueryId);
+      });
+    },
+    { immediate: true }
   );
 
   useResultRowIdsListener({
@@ -118,7 +123,12 @@ export function useResultRow<
     [() => toValue(queryId), () => toValue(rowId)],
     ([newQueryId, newRowId]) => {
       row.value = queries.getResultRow(newQueryId, newRowId);
-    }
+
+      onWatcherCleanup(() => {
+        queries.delQueryDefinition(newQueryId);
+      });
+    },
+    { immediate: true }
   );
 
   useResultRowListener({
@@ -166,9 +176,17 @@ export function useResultTable<
     queries.getResultTable(toValue(queryId)) as TResultTable
   );
 
-  watch([() => toValue(queryId)], ([newQueryId]) => {
-    resultTable.value = queries.getResultTable(newQueryId);
-  });
+  watch(
+    [() => toValue(queryId)],
+    ([newQueryId]) => {
+      resultTable.value = queries.getResultTable(newQueryId);
+
+      onWatcherCleanup(() => {
+        queries.delQueryDefinition(newQueryId);
+      });
+    },
+    { immediate: true }
+  );
 
   useResultTableListener({
     queries,

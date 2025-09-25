@@ -662,9 +662,12 @@ export function useUserWalletsQuery<
   );
   watch(
     () => toValue(userId),
-    (newUserId) => {
+    (newUserId, _, onCleanup) => {
       settledQuery.value = setUserWalletsQuery(queries, newUserId, {
         currency: true,
+      });
+      onCleanup(() => {
+        queries.delQueryDefinition(settledQuery.value.queryId);
       });
     }
   );
@@ -705,13 +708,15 @@ export function useUserWallets(userId: MaybeRefOrGetter<string>) {
 }
 
 export function useWallet(walletId: MaybeRefOrGetter<string>) {
-  const { queryId } = setTotalBalanceByWalletQuery(queries, toValue(walletId));
+  const settledQuery = shallowRef(
+    setTotalBalanceByWalletQuery(queries, toValue(walletId))
+  );
   const totalBalanceQueryResult = useResultRow<
     TotalBalanceByWalletQueryResult,
     StoreSchema
   >({
     queries,
-    queryId,
+    queryId: () => settledQuery.value.queryId,
     rowId: '0',
   });
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ArcElement, Chart, Legend, Tooltip, type ChartData } from 'chart.js';
+import { PieChartIcon } from 'lucide-vue-next';
 import { computed, toValue } from 'vue';
 import { Doughnut, type ChartProps } from 'vue-chartjs';
 
@@ -78,7 +79,10 @@ const chartOptions: ChartProps<'doughnut'>['options'] = {
 <template>
   <section class="card expense-overview">
     <div class="card__header">
-      <h2 class="card__title">Spending Recap</h2>
+      <h2 class="card__title card__title--with-icon">
+        <PieChartIcon :size="30" aria-hidden />
+        <span>Spending Recap</span>
+      </h2>
       <p class="expense-overview__subtitle">Last 3 months</p>
     </div>
     <div
@@ -102,6 +106,7 @@ const chartOptions: ChartProps<'doughnut'>['options'] = {
 @use '@globals/tools' as t;
 
 .expense-overview__subtitle {
+  margin-block-start: 10px;
   color: var(t.get-color-var('muted-foreground'));
 }
 

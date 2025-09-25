@@ -47,7 +47,7 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <form>
+  <form class="form">
     <div class="form-item">
       <Checkbox id="clear-tran" v-model="formState.transactions" />
       <label for="clear-tran">Transactions</label>
@@ -73,7 +73,7 @@ const handleSubmit = () => {
       <AlertDialogTrigger as-child>
         <button
           type="button"
-          class="btn"
+          class="btn form-submit"
           data-variant="destructive"
           :disabled="!isDirty"
         >
@@ -119,5 +119,8 @@ const handleSubmit = () => {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+.form-submit {
+  width: 100%;
 }
 </style>

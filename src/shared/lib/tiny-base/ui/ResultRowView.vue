@@ -15,6 +15,7 @@ const row = useResultRow({
   queries: props.queries,
   queryId: toRef(() => props.queryId),
   rowId: toRef(() => props.rowId),
+  disableQueryCleanup: true,
 });
 </script>
 

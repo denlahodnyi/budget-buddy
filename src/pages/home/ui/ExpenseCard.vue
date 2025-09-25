@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { TrendingDownIcon, TrendingUpIcon } from 'lucide-vue-next';
+import {
+  BanknoteArrowUpIcon,
+  TrendingDownIcon,
+  TrendingUpIcon,
+} from 'lucide-vue-next';
 
 import { useCurrentUserId } from '~/entities/user';
 import { useUserExpense, useUserExpenseTrend } from '~/entities/wallet';
@@ -13,7 +17,10 @@ const trend = useUserExpenseTrend(userId);
 <template>
   <section class="card expense-card">
     <div class="card__header">
-      <h2 class="card__title">Expense</h2>
+      <h2 class="card__title card__title--with-icon">
+        <BanknoteArrowUpIcon :size="30" aria-hidden />
+        <span>Expense</span>
+      </h2>
     </div>
     <MainCardValue>
       {{ expense.formattedTotalExpense }}

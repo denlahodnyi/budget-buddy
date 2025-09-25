@@ -31,14 +31,12 @@ import WalletsCard from './WalletsCard.vue';
   overflow: inherit;
   padding-block: 30px 40px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr) 250px;
-  grid-template-rows: min-content min-content 1fr;
-  grid-template-areas:
-    'title title title title'
-    'income expense balance wallets'
-    'expenseOverview statistics statistics wallets'
-    'transactions transactions transactions wallets';
+  grid-template-columns: repeat(12, 1fr);
   gap: 16px;
+
+  @include t.screen(md) {
+    grid-template-rows: repeat(3, min-content) 1fr;
+  }
 }
 
 .main-title {
@@ -46,21 +44,58 @@ import WalletsCard from './WalletsCard.vue';
 }
 .grid-block[data-area='title'] {
   grid-area: title;
+  grid-column: 1 / -1;
+  grid-row: 1 / span 1;
 }
 .grid-block[data-area='balance'] {
   grid-area: balance;
+  grid-column: 1 / -1;
+  grid-row: 2 / span 1;
+
+  @include t.screen(sm2) {
+    grid-column: 9 / -1;
+    grid-row: 2 / span 1;
+  }
 }
 .grid-block[data-area='income'] {
   grid-area: income;
+  grid-column: 1 / -1;
+  grid-row: 3 / span 1;
+
+  @include t.screen(sm2) {
+    grid-column: 1 / span 4;
+    grid-row: 2 / span 1;
+  }
 }
 .grid-block[data-area='expense'] {
   grid-area: expense;
+  grid-column: 1 / -1;
+  grid-row: 4 / span 1;
+
+  @include t.screen(sm2) {
+    grid-column: 5 / span 4;
+    grid-row: 2 / span 1;
+  }
 }
 .grid-block[data-area='expenseOverview'] {
   grid-area: expenseOverview;
+  grid-column: 1 / -1;
+  grid-row: 7 / span 1;
+
+  @include t.screen(sm2) {
+    grid-column: 1 / span 5;
+    grid-row: 3 / span 1;
+  }
 }
 .grid-block[data-area='statistics'] {
   grid-area: statistics;
+  grid-column: 1 / -1;
+  grid-row: 8 / span 1;
+
+  @include t.screen(sm2) {
+    grid-column: 6 / -1;
+    grid-row: 3 / span 1;
+  }
 }
 .grid-block[data-area='transactions'] {
   grid-area: transactions;
@@ -68,6 +103,13 @@ import WalletsCard from './WalletsCard.vue';
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  grid-column: 1 / -1;
+  grid-row: 6 / span 1;
+
+  @include t.screen(md) {
+    grid-column: 1 / -4;
+    grid-row: 4 / span 1;
+  }
 }
 .grid-block[data-area='wallets'] {
   grid-area: wallets;
@@ -75,5 +117,12 @@ import WalletsCard from './WalletsCard.vue';
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  grid-column: 1 / -1;
+  grid-row: 5 / span 1;
+
+  @include t.screen(md) {
+    grid-column: -4 / -1;
+    grid-row: 4 / span 1;
+  }
 }
 </style>

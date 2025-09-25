@@ -49,20 +49,20 @@ function handleDropdownOpenChange(open: boolean) {
 <template>
   <section class="transaction" :data-testid="`transaction_${props.id}`">
     <div
-      :style="{ backgroundColor: CATEGORY_COLORS[props.item.category!.color] }"
+      :style="{ backgroundColor: props.item.category?.color ?
+    CATEGORY_COLORS[props.item.category!.color] : '#000' }"
       class="transaction__color-indicator"
     />
     <component
-      :is="CATEGORY_ICONS[props.item.category!.icon]"
+      :is="props.item.category?.icon ? CATEGORY_ICONS[props.item.category!.icon] :
+    'span'"
       class="transaction__icon"
     />
-    <div>
-      <p class="transaction__name">{{ props.item.category!.name }}</p>
-      <p class="transaction__date">
-        {{ new Date(props.item.createdAt).toLocaleDateString() }}
-      </p>
-    </div>
-    <p class="transaction__wallet">{{ props.item.wallet!.name }}</p>
+    <p class="transaction__name">{{ props.item.category?.name }}</p>
+    <p class="transaction__date">
+      {{ new Date(props.item.createdAt).toLocaleDateString() }}
+    </p>
+    <p class="transaction__wallet">{{ props.item.wallet?.name }}</p>
     <p
       :class="[
         'transaction__amount',
@@ -81,7 +81,7 @@ function handleDropdownOpenChange(open: boolean) {
     >
       <DropdownMenuTrigger as-child>
         <button
-          class="btn"
+          class="btn transaction__action"
           data-variant="outline"
           data-size="icon"
           aria-label="More options"
@@ -125,52 +125,75 @@ function handleDropdownOpenChange(open: boolean) {
   grid-template-columns:
     min-content
     max-content
-    1fr
-    max-content
-    minmax(100px, max-content)
-    max-content;
-  gap: 20px;
+    repeat(2, 1fr)
+    min-content;
+  grid-template-areas:
+    'indicator icon name name action'
+    'indicator icon date date .'
+    'indicator icon wallet wallet .'
+    'indicator icon amount amount .';
+  row-gap: 6px;
+  column-gap: 20px;
   align-items: center;
+  align-content: flex-start;
   border: 1px solid
     color-mix(in hsl, var(t.get-color-var('border')), transparent 50%);
   border-radius: t.px-to-rem(8px);
   color: inherit;
   background-color: transparent;
+
+  @include t.screen(sm2) {
+    grid-template-columns:
+      min-content
+      max-content
+      1fr
+      max-content
+      minmax(100px, max-content)
+      max-content;
+    grid-template-areas:
+      'indicator icon name wallet amount action'
+      'indicator icon date wallet amount action';
+    row-gap: 0;
+  }
 }
 
 .transaction > :last-child {
   justify-self: end;
-  // border-radius: 100%;
 }
 
 .transaction__color-indicator {
   width: 6px;
   height: 100%;
   border-radius: 4px;
+  grid-area: indicator;
 }
 
 .transaction__icon {
   width: t.px-to-rem(34px);
   height: t.px-to-rem(34px);
+  grid-area: icon;
 }
 
 .transaction__name {
   font-size: t.px-to-rem(20px);
   font-weight: 500;
+  grid-area: name;
 }
 
 .transaction__date {
   color: var(t.get-color-var('muted-foreground'));
+  grid-area: date;
 }
 
 .transaction__wallet {
   color: var(t.get-color-var('muted-foreground'));
+  grid-area: wallet;
 }
 
 .transaction__amount {
   width: max-content;
   padding: 4px 8px;
-  justify-self: flex-end;
+  grid-area: amount;
   font-size: t.px-to-rem(18px);
   font-weight: 500;
   border-radius: 6px;
@@ -183,5 +206,13 @@ function handleDropdownOpenChange(open: boolean) {
     background-color: var(t.get-color-var('danger'));
     color: var(t.get-color-var('danger-foreground'));
   }
+
+  @include t.screen(sm2) {
+    justify-self: flex-end;
+  }
+}
+
+.transaction__action {
+  grid-area: action;
 }
 </style>

@@ -58,7 +58,12 @@ export function useResultRowIds<TSchemas extends OptionalSchemas>(args: {
     () => toValue(queryId),
     (newQueryId) => {
       ids.value = queries.getResultRowIds(newQueryId);
-    }
+
+      onWatcherCleanup(() => {
+        queries.delQueryDefinition(newQueryId);
+      });
+    },
+    { immediate: true }
   );
 
   useResultRowIdsListener({
@@ -108,8 +113,9 @@ export function useResultRow<
   queryId: MaybeRefOrGetter<string>;
   rowId: MaybeRefOrGetter<Id>;
   queries: Queries<TSchemas>;
+  disableQueryCleanup?: boolean;
 }) {
-  const { queryId, rowId, queries } = args;
+  const { queryId, rowId, queries, disableQueryCleanup } = args;
   const row = shallowRef(
     queries.getResultRow(toValue(queryId), toValue(rowId)) as TResultRow
   );
@@ -118,7 +124,12 @@ export function useResultRow<
     [() => toValue(queryId), () => toValue(rowId)],
     ([newQueryId, newRowId]) => {
       row.value = queries.getResultRow(newQueryId, newRowId);
-    }
+
+      onWatcherCleanup(() => {
+        if (!disableQueryCleanup) queries.delQueryDefinition(newQueryId);
+      });
+    },
+    { immediate: true }
   );
 
   useResultRowListener({
@@ -166,9 +177,17 @@ export function useResultTable<
     queries.getResultTable(toValue(queryId)) as TResultTable
   );
 
-  watch([() => toValue(queryId)], ([newQueryId]) => {
-    resultTable.value = queries.getResultTable(newQueryId);
-  });
+  watch(
+    [() => toValue(queryId)],
+    ([newQueryId]) => {
+      resultTable.value = queries.getResultTable(newQueryId);
+
+      onWatcherCleanup(() => {
+        queries.delQueryDefinition(newQueryId);
+      });
+    },
+    { immediate: true }
+  );
 
   useResultTableListener({
     queries,

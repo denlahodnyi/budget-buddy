@@ -111,7 +111,7 @@ export function useUserTransactionsQuery<
   );
   watch(
     [() => toValue(userId), () => toValue(filterBy)],
-    ([newUserId, newFilterBy]) => {
+    ([newUserId, newFilterBy], _, onCleanup) => {
       settledQuery.value = setUserTransactionsQuery(
         queries,
         newUserId,
@@ -122,6 +122,10 @@ export function useUserTransactionsQuery<
           currency: populatedWith?.currency ?? false,
         }
       );
+
+      onCleanup(() => {
+        queries.delQueryDefinition(settledQuery.value.queryId);
+      });
     }
   );
 

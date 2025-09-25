@@ -92,6 +92,6 @@ function handleDropdownOpenChange(open: boolean) {
   justify-content: space-between;
 }
 .wallet-item__name {
-  font-size: t.px-to-rem(16px);
+  font-size: t.px-to-rem(18px);
 }
 </style>

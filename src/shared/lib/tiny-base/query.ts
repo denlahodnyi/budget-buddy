@@ -113,8 +113,9 @@ export function useResultRow<
   queryId: MaybeRefOrGetter<string>;
   rowId: MaybeRefOrGetter<Id>;
   queries: Queries<TSchemas>;
+  disableQueryCleanup?: boolean;
 }) {
-  const { queryId, rowId, queries } = args;
+  const { queryId, rowId, queries, disableQueryCleanup } = args;
   const row = shallowRef(
     queries.getResultRow(toValue(queryId), toValue(rowId)) as TResultRow
   );
@@ -125,7 +126,7 @@ export function useResultRow<
       row.value = queries.getResultRow(newQueryId, newRowId);
 
       onWatcherCleanup(() => {
-        queries.delQueryDefinition(newQueryId);
+        if (!disableQueryCleanup) queries.delQueryDefinition(newQueryId);
       });
     },
     { immediate: true }

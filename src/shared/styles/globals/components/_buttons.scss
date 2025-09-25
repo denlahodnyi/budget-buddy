@@ -5,7 +5,7 @@
   $btn-size: t.px-to-rem(32px);
 
   .btn-base {
-    height: $btn-size;
+    min-block-size: $btn-size;
     padding-block: t.px-to-rem(4px);
     padding-inline: t.px-to-rem(8px);
     display: inline-flex;
@@ -14,10 +14,10 @@
     gap: t.px-to-rem(6px);
     border-radius: t.px-to-rem(6px);
     font-weight: 500;
-    font-size: t.px-to-rem(14px);
-    line-height: t.lh-ratio(14px);
+    font-size: t.px-to-rem(16px);
+    line-height: t.lh-ratio(16px);
     transition: all cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
-    box-shadow: 0 1px 2px 0 hsl(0, 0%, 0%, 0.1);
+    box-shadow: 0 0 2px 0 hsl(0, 0%, 0%, 0.1);
 
     &:focus-visible {
       outline: none;
@@ -54,9 +54,14 @@
   }
 
   :where(.btn[data-size='icon']) {
-    height: $btn-size;
-    width: $btn-size;
+    min-block-size: $btn-size;
+    inline-size: $btn-size;
     padding: 0;
+  }
+
+  :where(.btn[data-size='large']) {
+    padding-block: t.px-to-rem(10px);
+    padding-inline: t.px-to-rem(16px);
   }
 
   :where(.btn[data-variant='ghost']) {

@@ -64,6 +64,10 @@ $body-padding: 12px;
   border-bottom: 1px solid var(t.get-color-var('border'));
 }
 
+.calendar__title {
+  color: var(t.get-color-var('popover-foreground'));
+}
+
 .calendar__day-cell {
   padding: t.px-to-rem(2px);
 }

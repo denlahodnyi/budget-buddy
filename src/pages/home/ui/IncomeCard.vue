@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { TrendingDownIcon, TrendingUpIcon } from 'lucide-vue-next';
+import {
+  BanknoteArrowDownIcon,
+  TrendingDownIcon,
+  TrendingUpIcon,
+} from 'lucide-vue-next';
 
 import { useCurrentUserId } from '~/entities/user';
 import { useUserIncome, useUserIncomeTrend } from '~/entities/wallet';
@@ -13,7 +17,10 @@ const trend = useUserIncomeTrend(userId);
 <template>
   <section class="card income-card">
     <div class="card__header">
-      <h2 class="card__title">Income</h2>
+      <h2 class="card__title card__title--with-icon">
+        <BanknoteArrowDownIcon :size="30" aria-hidden />
+        <span>Income</span>
+      </h2>
     </div>
     <MainCardValue>{{ income.formattedTotalIncome }}</MainCardValue>
     <p

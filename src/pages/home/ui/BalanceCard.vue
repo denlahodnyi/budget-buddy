@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TriangleAlertIcon } from 'lucide-vue-next';
+import { PiggyBankIcon, TriangleAlertIcon } from 'lucide-vue-next';
 import {
   TooltipArrow,
   TooltipContent,
@@ -20,7 +20,10 @@ const totalBalance = useUserBalance(userId);
 <template>
   <section class="card balance-card">
     <div class="card__header">
-      <h2 class="card__title">My balance</h2>
+      <h2 class="card__title card__title--with-icon">
+        <PiggyBankIcon :size="30" aria-hidden />
+        <span>My balance</span>
+      </h2>
     </div>
     <span class="card__text-line">
       <TooltipProvider>

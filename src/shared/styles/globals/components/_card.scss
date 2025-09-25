@@ -2,8 +2,8 @@
 
 @layer components.card {
   .card {
-    padding-block: t.px-to-rem(10px);
-    padding-inline: t.px-to-rem(12px);
+    padding-block: t.px-to-rem(12px);
+    padding-inline: t.px-to-rem(14px);
     border: 1px solid var(t.get-color-var('border'));
     border-radius: t.px-to-rem(8px);
     color: var(t.get-color-var('card-foreground'));
@@ -22,5 +22,15 @@
 
   .card__title {
     font-size: t.px-to-rem(20px);
+    &.card__title--with-icon {
+      & > svg {
+        display: inline;
+        vertical-align: middle;
+        margin-inline-end: 10px;
+      }
+      & > span {
+        vertical-align: middle;
+      }
+    }
   }
 }

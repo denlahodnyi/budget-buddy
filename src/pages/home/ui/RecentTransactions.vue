@@ -8,6 +8,7 @@ import {
   EllipsisIcon,
   FunnelIcon,
   PlusIcon,
+  ReceiptTextIcon,
 } from 'lucide-vue-next';
 import {
   PaginationEllipsis,
@@ -78,9 +79,12 @@ const handleResetFilters = (
 
 <template>
   <section class="recent-t card">
-    <div class="card__header card__header_with-actions">
+    <div class="card__header card__header_with-actions recent-t__header">
       <div class="recent-t__title-wrapper">
-        <h2 class="card__title">Recent Transactions</h2>
+        <h2 class="card__title card__title--with-icon recent-t__title">
+          <ReceiptTextIcon :size="30" aria-hidden />
+          <span>Recent Transactions</span>
+        </h2>
         <TransactionsFilterPopover
           :filters="filterBy"
           :on-save="handleChangeFilters"
@@ -108,7 +112,9 @@ const handleResetFilters = (
         </TransactionsSortDropdown>
       </div>
       <TransactionDialog>
-        <button class="btn"><PlusIcon :size="20" />Add new</button>
+        <button class="btn" data-size="large">
+          <PlusIcon :size="20" />Add new
+        </button>
       </TransactionDialog>
     </div>
     <div v-if="count > 0" role="list" class="transactions-list">
@@ -141,14 +147,14 @@ const handleResetFilters = (
           data-variant="ghost"
           data-size="icon"
         >
-          <ChevronsLeftIcon />
+          <ChevronsLeftIcon :size="16" />
         </PaginationFirst>
         <PaginationPrev
           class="pagination-btn btn"
           data-variant="ghost"
           data-size="icon"
         >
-          <ChevronLeftIcon />
+          <ChevronLeftIcon :size="16" />
         </PaginationPrev>
         <template v-for="(page, index) in items">
           <PaginationListItem
@@ -161,7 +167,7 @@ const handleResetFilters = (
             {{ page.value }}
           </PaginationListItem>
           <PaginationEllipsis v-else :key="page.type" :index="index">
-            <EllipsisIcon />
+            <EllipsisIcon :size="16" />
           </PaginationEllipsis>
         </template>
         <PaginationNext
@@ -169,14 +175,14 @@ const handleResetFilters = (
           data-variant="ghost"
           data-size="icon"
         >
-          <ChevronRightIcon />
+          <ChevronRightIcon :size="16" />
         </PaginationNext>
         <PaginationLast
           class="pagination-btn btn"
           data-variant="ghost"
           data-size="icon"
         >
-          <ChevronsRightIcon />
+          <ChevronsRightIcon :size="16" />
         </PaginationLast>
       </PaginationList>
     </PaginationRoot>
@@ -199,16 +205,31 @@ const handleResetFilters = (
   gap: 12px;
 }
 
+.recent-t__header {
+  flex-direction: column;
+  gap: 20px;
+  align-items: normal;
+
+  @include t.screen(sm2) {
+    flex-direction: row;
+    gap: 0;
+  }
+}
+
 .recent-t__title-wrapper {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
+.recent-t__title {
+  flex-grow: 1;
+}
+
 .pagination {
   padding-block: 20px;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .pagination__list {
   display: flex;

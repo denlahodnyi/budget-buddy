@@ -15,7 +15,7 @@
   line-height: $lh-ratio;
 }
 
-@mixin screen($breakpoint-name: 'md', $range: 'up', $use-rem: true) {
+@mixin screen($breakpoint-name: md, $range: up, $use-rem: true) {
   @if not map.has-key(s.$breakpoints, $breakpoint-name) {
     @error 'Invalid breakpoint name. Valid names: #{map.keys(s.$breakpoints)}';
   }

@@ -78,7 +78,7 @@ const saveCustomRate = () => {
     >
       Current rate:
       {{ props.baseCurrencyCode && `1 ${props.baseCurrencyCode} = `
-      }}{{ props.rate }} {{ props.item.code }}
+      }}{{ props.rate.toFixed(2) }} {{ props.item.code }}
     </p>
     <button
       v-if="!isRateFormVisible"
@@ -86,6 +86,7 @@ const saveCustomRate = () => {
       @click="isRateFormVisible = true"
     >
       Set custom exchange rate
+      <PenIcon :size="14" />
     </button>
     <form v-else>
       <div class="form-item">
@@ -97,6 +98,7 @@ const saveCustomRate = () => {
           v-model="customRate"
           type="number"
           min="0"
+          placeholder="Your rate per $1 USD"
           class="input currency-item__rate-input"
           @blur="saveCustomRate"
         />
@@ -107,6 +109,16 @@ const saveCustomRate = () => {
 
 <style lang="scss" scoped>
 @use '@globals/tools' as t;
+
+.currency-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  &:has(> :nth-child(2):last-child) > :nth-child(1) {
+    margin-block-end: auto;
+  }
+}
 
 .currency-item__header {
   margin-block-end: 10px;
@@ -123,12 +135,14 @@ const saveCustomRate = () => {
 
 .currency-item__rate {
   margin-block-end: t.px-to-rem(10px);
-  color: var(t.get-color-var('muted-foreground'));
 }
 
 .currency-item__rate-form-toggle {
   padding: 0;
-  color: var(t.get-color-var('accent'));
+  color: var(t.get-color-var('secondary'));
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .currency-item__rate-input {

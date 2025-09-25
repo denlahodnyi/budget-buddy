@@ -32,7 +32,7 @@ const { formState, formErrors, isDirty, submit } = useUserForm({
     </RouterLink>
     <h1 class="title">Settings</h1>
     <h2 class="sub-title">Profile</h2>
-    <div class="user-section">
+    <div class="card user-section">
       <UserForm
         v-model:name="formState.name"
         :form-errors="formErrors"
@@ -59,29 +59,33 @@ const { formState, formErrors, isDirty, submit } = useUserForm({
       <div>
         <ExchangeRateUpdater />
       </div>
-      <template v-for="(c, id) in currencies">
-        <CurrencyItem
-          v-if="c"
-          :key="id"
-          :currency-id="id"
-          :item="c"
-          :rate="
-            c.code === baseCurrency ? 1 : liveRates && liveRates[`USD${c.code}`]
-          "
-          :base-currency-code="baseCurrency"
-          :heading-level="3"
-          :data-testid="`currency-${c.code}`"
-        />
-      </template>
+      <div class="currencies-grid">
+        <template v-for="(c, id) in currencies">
+          <CurrencyItem
+            v-if="c"
+            :key="id"
+            :currency-id="id"
+            :item="c"
+            :rate="
+              c.code === baseCurrency
+                ? 1
+                : liveRates && liveRates[`USD${c.code}`]
+            "
+            :base-currency-code="baseCurrency"
+            :heading-level="3"
+            :data-testid="`currency-${c.code}`"
+          />
+        </template>
+      </div>
     </div>
     <CurrencyDialog>
-      <button class="btn action-btn" data-variant="outline">
-        Add currency
-      </button>
+      <button class="btn action-btn" data-size="large">Add currency</button>
     </CurrencyDialog>
     <h2 class="sub-title">Clear data</h2>
-    <p class="secondary-txt">Choose which data to remove completely</p>
-    <ClearDataForm class="stack clear-form" />
+    <div class="card clear-data-section">
+      <p class="secondary-txt">Choose which data to remove completely</p>
+      <ClearDataForm />
+    </div>
   </div>
 </template>
 
@@ -112,7 +116,9 @@ const { formState, formErrors, isDirty, submit } = useUserForm({
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-inline-size: 300px;
+  @include t.screen(sm) {
+    max-inline-size: 300px;
+  }
 }
 .user-section__submit-btn {
   inline-size: 100%;
@@ -121,10 +127,20 @@ const { formState, formErrors, isDirty, submit } = useUserForm({
   margin-block-start: 20px;
 }
 .secondary-txt {
-  margin-block-end: 20px;
+  margin-block-end: 15px;
   color: var(t.get-color-var('muted-foreground'));
 }
-.clear-form {
-  max-inline-size: 300px;
+.clear-data-section {
+  @include t.screen(sm) {
+    max-inline-size: 300px;
+  }
+}
+.currencies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  @include t.screen(md) {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
 }
 </style>

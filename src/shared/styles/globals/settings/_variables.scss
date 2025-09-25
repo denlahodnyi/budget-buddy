@@ -14,7 +14,7 @@ $z-index-var-prefix: 'z-';
 $breakpoints: (
   xs: 320px,
   sm: 480px,
-  2sm: 640px,
+  sm2: 640px,
   md: 768px,
   lg: 1024px,
   xl: 1280px,
@@ -41,8 +41,8 @@ $colors-scheme: (
     hsl(0, 0%, 0%),
   ),
   'secondary': (
-    hsl(189, 16%, 67%),
-    hsl(189, 16%, 33%),
+    hsl(230, 38, 71%),
+    hsl(230, 48, 70%),
   ),
   'secondary-foreground': (
     hsl(0, 0%, 0%),
@@ -89,16 +89,24 @@ $colors-scheme: (
     hsl(0, 0%, 100%),
   ),
   'background': (
-    hsl(204, 24%, 96%),
-    hsl(0, 0.02%, 3.94%),
+    hsl(214, 54%, 98%),
+    hsl(0, 0.02%, 5%),
   ),
   'foreground': (
     hsl(0, 4%, 15%),
     hsl(0, 0%, 99%),
   ),
+  'modal': (
+    hsl(214, 54%, 98%),
+    hsl(252, 6%, 10%),
+  ),
+  'modal-foreground': (
+    hsl(0, 4%, 15%),
+    hsl(0, 0%, 99%),
+  ),
   'popover': (
     hsl(0, 0%, 100%),
-    hsl(0, 0.01%, 14.94%),
+    hsl(0, 0.01%, 15%),
   ),
   'popover-foreground': (
     hsl(0, 4%, 15%),

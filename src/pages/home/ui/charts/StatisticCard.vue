@@ -7,7 +7,7 @@ import {
   PointElement,
   type ChartData,
 } from 'chart.js';
-import { ChevronDownIcon } from 'lucide-vue-next';
+import { ChartLineIcon, ChevronDownIcon } from 'lucide-vue-next';
 import { computed, ref, toValue } from 'vue';
 import { Line, type ChartProps } from 'vue-chartjs';
 
@@ -146,7 +146,10 @@ function formatTimestamp(date: number) {
 <template>
   <section class="card stats">
     <div class="card__header stats__header">
-      <h2 class="card__title">Statistics</h2>
+      <h2 class="card__title card__title--with-icon">
+        <ChartLineIcon :size="30" aria-hidden />
+        <span>Statistics</span>
+      </h2>
       <ChartDatesFilterDropdown
         v-slot="{ selectedValue }"
         v-model="selectedDatesFilter"
@@ -157,10 +160,7 @@ function formatTimestamp(date: number) {
         </button>
       </ChartDatesFilterDropdown>
     </div>
-    <div
-      v-if="incomeDataRef || expenseDataRef"
-      :style="{ position: 'relative' }"
-    >
+    <div v-if="incomeDataRef || expenseDataRef" class="chart">
       <Line
         :data="chartData as unknown as ChartData<'line', (number)[], unknown>"
         :options="chartOptions"
@@ -182,5 +182,12 @@ function formatTimestamp(date: number) {
   padding: 20px 0;
   color: var(t.get-color-var('muted-foreground'));
   text-align: center;
+}
+.chart {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  @include t.screen(md) {
+    aspect-ratio: unset;
+  }
 }
 </style>

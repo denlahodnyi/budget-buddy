@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PenIcon, TrashIcon } from 'lucide-vue-next';
 import { Label } from 'radix-vue';
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import type { CurrencyWithUserRate } from '~/entities/currency';
 import { useCurrentUserId } from '~/entities/user';
@@ -24,7 +24,15 @@ const props = defineProps<CurrencyItemProps>();
 const userId = useCurrentUserId();
 const customRate = ref(props.item.userRate);
 const isRateFormVisible = ref(!!props.item.userRate);
-const isCustom = !!props.item.userId;
+const isCustom = computed(() => !!props.item.userId);
+
+watch(
+  () => props.item.userRate,
+  (newUserRate) => {
+    customRate.value = newUserRate;
+    isRateFormVisible.value = !!newUserRate;
+  }
+);
 
 const saveCustomRate = () => {
   setExchangeRate(userId.value, props.item.code, customRate.value || 0);

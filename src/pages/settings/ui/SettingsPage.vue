@@ -6,6 +6,7 @@ import { useExchangeRates, useUserCurrencies } from '~/entities/currency';
 import { useCurrentUser, useCurrentUserId } from '~/entities/user';
 import { UserForm, useUserForm } from '~/features/user/create-and-edit';
 import { UserDelAlert } from '~/features/user/delete';
+import ClearDataForm from './ClearDataForm.vue';
 import CurrencyDialog from './CurrencyDialog.vue';
 import CurrencyItem from './CurrencyItem.vue';
 import ExchangeRateUpdater from './ExchangeRateUpdater.vue';
@@ -78,6 +79,9 @@ const { formState, formErrors, isDirty, submit } = useUserForm({
         Add currency
       </button>
     </CurrencyDialog>
+    <h2 class="sub-title">Clear data</h2>
+    <p class="secondary-txt">Choose which data to remove completely</p>
+    <ClearDataForm class="stack clear-form" />
   </div>
 </template>
 
@@ -115,5 +119,12 @@ const { formState, formErrors, isDirty, submit } = useUserForm({
 }
 .user-section__del-btn {
   margin-block-start: 20px;
+}
+.secondary-txt {
+  margin-block-end: 20px;
+  color: var(t.get-color-var('muted-foreground'));
+}
+.clear-form {
+  max-inline-size: 300px;
 }
 </style>

@@ -38,6 +38,11 @@ export function deleteUser(userId: string) {
       }
       store.delRow('currencies', curId);
     });
+    store.getRowIds('userExchangeRates').forEach((rowId) => {
+      if (rowId.split('_')[0] === userId) {
+        store.delRow('userExchangeRates', rowId);
+      }
+    });
     store.delRow('users', userId);
 
     if (store.getRowCount('users') === 0) {
@@ -48,6 +53,8 @@ export function deleteUser(userId: string) {
       store.setValue('userId', userIds[0]);
     }
   });
+
+  // TODO: remove queries
 
   return { success: true };
 }

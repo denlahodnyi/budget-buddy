@@ -44,6 +44,7 @@ export function useCurrentUser() {
 
 export function useUsers() {
   const usersQuery = setUsersQuery();
+
   return useResultTable<Record<string, StoredUser>, StoreSchema>({
     queries,
     queryId: () => usersQuery.queryId,

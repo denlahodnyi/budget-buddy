@@ -16,6 +16,7 @@ const { isVisible } = defineProps<{ isVisible: boolean }>();
 .loader-overlay {
   position: fixed;
   inset: 0;
+  z-index: var(t.get-z-var('super-top'));
   width: 100%;
   height: 100%;
   display: flex;

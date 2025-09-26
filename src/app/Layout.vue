@@ -2,6 +2,7 @@
 import { CogIcon } from 'lucide-vue-next';
 import { useRoute } from 'vue-router';
 
+import { ThemeSelect } from '~/features/set-theme';
 import UserSwitch from './ui/UserSwitch.vue';
 
 const route = useRoute();
@@ -11,6 +12,7 @@ const route = useRoute();
   <div class="app-layout">
     <header id="app-header" class="app-header">
       <div>
+        <ThemeSelect mount-to="#app-header" />
         <UserSwitch mount-to="#app-header" />
         <RouterLink
           v-if="route.path !== '/settings'"
@@ -36,12 +38,18 @@ const route = useRoute();
   // max-height: 150svh;
   display: grid;
   grid-template-columns:
-    1fr [content-start] min(100% - 60px, t.px-to-rem(1024px))
+    1fr [content-start] min(100% - 30px, t.px-to-rem(1024px))
     [content-end] 1fr;
   grid-template-rows: min-content min-content min-content 1fr;
 
   & > * {
     grid-column: content;
+  }
+
+  @include t.screen('sm2') {
+    grid-template-columns:
+      1fr [content-start] min(100% - 60px, t.px-to-rem(1024px))
+      [content-end] 1fr;
   }
 }
 

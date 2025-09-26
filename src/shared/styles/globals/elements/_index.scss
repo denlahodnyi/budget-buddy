@@ -1,14 +1,19 @@
+@use 'sass:map';
 @use '../settings' as s;
 @use '../tools' as t;
 
-@mixin color-vars($colors) {
-  @each $color-name, $color-value in $colors {
-    #{t.get-color-var($color-name)}: #{$color-value};
-  }
-}
-
 @layer elements {
   :root {
+    color-scheme: light dark;
+
+    &[data-theme='dark'] {
+      color-scheme: dark;
+    }
+    &[data-theme='light'] {
+      color-scheme: light;
+    }
+
+    // Setup font variables
     --#{s.$font-var-prefix}main: #{s.$font-main};
 
     // Setup z-index variables
@@ -16,17 +21,44 @@
       #{t.get-z-var($level)}: #{$z-index};
     }
 
-    // Setup color variables
-    @each $theme, $colors in s.$theme-colors {
-      @if $theme == 'dark' {
-        @media (prefers-color-scheme: dark) {
-          @include color-vars($colors);
+    // Setup color variables simply reassigning them (if light-dark is not supported)
+    @supports not (color: light-dark(black, black)) {
+      @mixin color-vars($colors) {
+        @each $color-name, $color-value in $colors {
+          #{t.get-color-var($color-name)}: #{$color-value};
         }
-        // &:has(body[data-theme='dark']) {
-        //   @include color-vars($colors);
-        // }
-      } @else {
-        @include color-vars($colors);
+      }
+
+      @each $theme, $colors in s.$theme-colors {
+        @if $theme == 'dark' {
+          @media (prefers-color-scheme: dark) {
+            &:not([data-theme='light']) {
+              @include color-vars($colors);
+            }
+          }
+          &[data-theme='dark'] {
+            @include color-vars($colors);
+          }
+        } @else {
+          @include color-vars($colors);
+          &[data-theme='light'] {
+            @include color-vars($colors);
+          }
+        }
+      }
+    }
+
+    // Setup color variables using light-dark + color-scheme
+    @supports (color: light-dark(black, black)) {
+      $dark-colors: map.get(s.$theme-colors, 'dark');
+      $light-colors: map.get(s.$theme-colors, 'light');
+
+      @each $color-name, $dark-color in $dark-colors {
+        $light-color: map.get($light-colors, $color-name);
+        #{t.get-color-var($color-name)}: light-dark(
+          #{$light-color},
+          #{$dark-color}
+        );
       }
     }
   }

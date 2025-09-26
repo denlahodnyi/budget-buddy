@@ -5,6 +5,7 @@ import { onBeforeMount, ref } from 'vue';
 
 import LoaderOverlay from './app/LoaderOverlay.vue';
 import { exchangeRateQuery, useExchangeRates } from './entities/currency';
+import { getTheme, setTheme } from './features/set-theme';
 import { initiateStorePersister } from './store';
 
 const client = useQueryClient();
@@ -15,6 +16,8 @@ useExchangeRates();
 
 onBeforeMount(() => {
   settleInitialData();
+  const theme = getTheme();
+  if (theme) setTheme(theme);
 });
 
 const settleInitialData = async () => {

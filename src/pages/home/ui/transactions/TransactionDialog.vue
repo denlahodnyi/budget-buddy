@@ -26,7 +26,7 @@ import {
   SelectValue,
   SelectViewport,
 } from 'radix-vue';
-import { computed, ref, shallowRef } from 'vue';
+import { computed, defineAsyncComponent, ref, shallowRef } from 'vue';
 
 import { CategorySelect } from '~/entities/category';
 import {
@@ -44,9 +44,14 @@ import {
   CurrencyInput,
   type CurrencyInputProps,
 } from '~/shared/ui/currency-input';
-import { DatePicker } from '~/shared/ui/datepicker';
 import { FormMessage } from '~/shared/ui/form';
-import CategoriesDialog from './CategoriesDialog.vue';
+
+const CategoriesDialog = defineAsyncComponent(
+  () => import('../categories/CategoriesDialog.vue')
+);
+const DatePicker = defineAsyncComponent(
+  () => import('~/shared/ui/datepicker/Datepicker.vue')
+);
 
 type TransactionDialogProps = {
   transactionId?: string;

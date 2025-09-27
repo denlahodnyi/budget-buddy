@@ -14,8 +14,8 @@ import { ref, toRef, useAttrs } from 'vue';
 
 import { useCategoryByQuery, useSubcategoriesIds } from '~/entities/category';
 import { CategoryDelAlert } from '~/features/category/delete';
-import ManageableCategory from './ManageableCategory.vue';
 import CategoryDialog from './CategoryDialog.vue';
+import ManageableCategory from './ManageableCategory.vue';
 
 export interface ManageableParentCategory {
   id: string;

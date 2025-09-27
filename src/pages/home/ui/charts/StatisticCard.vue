@@ -8,7 +8,7 @@ import {
   type ChartData,
 } from 'chart.js';
 import { ChartLineIcon, ChevronDownIcon } from 'lucide-vue-next';
-import { computed, ref, toValue } from 'vue';
+import { computed, ref, toValue, useTemplateRef } from 'vue';
 import { Line, type ChartProps } from 'vue-chartjs';
 
 import { useCurrentUserId } from '~/entities/user';
@@ -31,26 +31,37 @@ const datesInterval = computed(() => {
 });
 const incomeDataRef = useUserTotalIncomeByDates(userId, datesInterval);
 const expenseDataRef = useUserTotalExpenseByDates(userId, datesInterval);
+const expenseColorKeeper = useTemplateRef('expense-color-holder');
+const incomeColorKeeper = useTemplateRef('income-color-holder');
 
 type DatasetDataItem = { total: number; formattedTotal: string; date: number };
+
+const labels = computed(() => {
+  const incomeData = toValue(incomeDataRef);
+  const expenseData = toValue(expenseDataRef);
+  const labels = [
+    ...(incomeData || []).map((d) => d.date),
+    ...(expenseData || []).map((d) => d.date),
+  ];
+  const sortedUniqueLabels = Array.from(new Set(labels)).sort((a, b) =>
+    a > b ? 1 : -1
+  );
+  return sortedUniqueLabels;
+});
 
 const chartData = computed<ChartData<'line', DatasetDataItem[], unknown>>(
   () => {
     const incomeData = toValue(incomeDataRef);
     const expenseData = toValue(expenseDataRef);
-    const labels = [
-      ...(incomeData || []).map((d) => d.date),
-      ...(expenseData || []).map((d) => d.date),
-    ];
-    const sortedUniqueLabels = Array.from(new Set(labels)).sort((a, b) =>
-      a > b ? 1 : -1
-    );
-    const style = getComputedStyle(document.documentElement);
-    const incomeColor = style.getPropertyValue('--clr-success');
-    const expenseColor = style.getPropertyValue('--clr-danger');
+    const expenseColor = expenseColorKeeper.value
+      ? getComputedStyle(expenseColorKeeper.value).color
+      : 'red';
+    const incomeColor = incomeColorKeeper.value
+      ? getComputedStyle(incomeColorKeeper.value).color
+      : 'green';
 
     return {
-      labels: sortedUniqueLabels,
+      labels: labels.value,
       datasets: [
         {
           label: 'Income',
@@ -167,6 +178,16 @@ function formatTimestamp(date: number) {
       />
     </div>
     <p v-else class="empty-content">No activity yet</p>
+    <span
+      ref="expense-color-holder"
+      hidden
+      :style="{ color: 'var(--clr-danger)' }"
+    />
+    <span
+      ref="income-color-holder"
+      hidden
+      :style="{ color: 'var(--clr-success)' }"
+    />
   </section>
 </template>
 

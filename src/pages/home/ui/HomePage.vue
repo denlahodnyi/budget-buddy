@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import BalanceCard from './BalanceCard.vue';
+import ExpensesOverviewCard from './charts/ExpensesOverviewCard.vue';
 import StatisticCard from './charts/StatisticCard.vue';
 import ExpenseCard from './ExpenseCard.vue';
-import ExpensesOverviewCard from './ExpensesOverviewCard.vue';
 import IncomeCard from './IncomeCard.vue';
-import RecentTransactions from './RecentTransactions.vue';
-import WalletsCard from './WalletsCard.vue';
+import RecentTransactions from './transactions/RecentTransactions.vue';
+import WalletsCard from './wallets/WalletsCard.vue';
 </script>
 
 <template>

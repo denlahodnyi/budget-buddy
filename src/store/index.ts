@@ -68,15 +68,15 @@ function setCategories(s: typeof store) {
   });
 }
 
-// TODO: remove on prod
-store.addTablesListener((store) => {
-  console.log('STORE CHANGED: ', store.getTables());
-});
+if (import.meta.env.DEV) {
+  store.addTablesListener((store) => {
+    console.log('STORE CHANGED: ', store.getTables());
+  });
 
-// TODO: remove on prod
-queries.addQueryIdsListener((queries) => {
-  console.log('QUERIES IDS', queries.getQueryIds());
-});
+  queries.addQueryIdsListener((queries) => {
+    console.log('QUERIES IDS', queries.getQueryIds());
+  });
+}
 
 export {
   CATEGORY_COLORS,

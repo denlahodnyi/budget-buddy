@@ -9,7 +9,7 @@ import pluginCypress from 'eslint-plugin-cypress';
 
 export default typescriptEslint.config(
   {
-    ignores: ['*.d.ts', '**/coverage', '**/dist', 'vite.config.ts'],
+    ignores: ['*.d.ts', '**/coverage', '**/dist', 'vite.config.ts', 'knip.ts'],
   },
   {
     name: 'app-config',

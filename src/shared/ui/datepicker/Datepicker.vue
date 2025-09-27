@@ -6,11 +6,11 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
 } from 'lucide-vue-next';
-import { DatePicker } from 'primevue';
+import { DatePicker as PrimeDatePicker } from 'primevue';
 </script>
 
 <template>
-  <DatePicker
+  <PrimeDatePicker
     show-time
     show-button-bar
     hour-format="24"
@@ -78,7 +78,7 @@ import { DatePicker } from 'primevue';
     <template #decrementicon>
       <ChevronDownIcon :size="16" />
     </template>
-  </DatePicker>
+  </PrimeDatePicker>
 </template>
 
 <style src="./datepicker.scss"></style>

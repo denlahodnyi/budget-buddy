@@ -1,4 +1,3 @@
-import { isEmpty } from 'lodash-es';
 import {
   enums,
   nonempty,
@@ -20,6 +19,7 @@ import {
   type MaybeRefOrGetter,
 } from 'vue';
 
+import { isEmptyObj } from '~/shared/lib/objects';
 import {
   useResultRow,
   useResultRowIds,
@@ -126,7 +126,7 @@ export function useCategory(categoryId: MaybeRefOrGetter<string>) {
   const category = useRow({ store, tableId: 'categories', rowId: categoryId });
 
   return computed(() =>
-    isEmpty(category.value) ? null : (category.value as Category)
+    isEmptyObj(category.value) ? null : (category.value as Category)
   );
 }
 
@@ -144,7 +144,7 @@ export function useCategoryByQuery(
   });
 
   return computed(() =>
-    isEmpty(category.value) ? null : (category.value as Category)
+    isEmptyObj(category.value) ? null : (category.value as Category)
   );
 }
 

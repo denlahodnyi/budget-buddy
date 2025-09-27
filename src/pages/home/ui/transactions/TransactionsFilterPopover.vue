@@ -9,11 +9,14 @@ import {
   PopoverRoot,
   PopoverTrigger,
 } from 'radix-vue';
-import { ref } from 'vue';
+import { defineAsyncComponent, ref } from 'vue';
 
 import type { TransactionsFilters } from '~/entities/transaction';
-import { DatePicker } from '~/shared/ui/datepicker';
 import { Checkbox } from '~/shared/ui/form';
+
+const DatePicker = defineAsyncComponent(
+  () => import('~/shared/ui/datepicker/Datepicker.vue')
+);
 
 export interface TransactionsFilterPopoverProps {
   filters?: Required<TransactionsFilters>;

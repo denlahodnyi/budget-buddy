@@ -3,8 +3,8 @@ import { PenIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, toRef } from 'vue';
 
 import { useCategoryByQuery } from '~/entities/category';
-import { CATEGORY_COLORS, CATEGORY_ICONS } from '~/store';
 import { CategoryDelAlert } from '~/features/category/delete';
+import { CATEGORY_COLORS, CATEGORY_ICONS } from '~/store';
 import CategoryDialog from './CategoryDialog.vue';
 
 export interface CategoryButtonProps {

@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import { HomePage } from '~/pages/home';
-import { SettingsPage } from '~/pages/settings';
 import Layout from './Layout.vue';
+
+const SettingsPage = () =>
+  import('~/pages/settings').then((module) => module.SettingsPage);
 
 export const router = createRouter({
   history: createWebHistory(),

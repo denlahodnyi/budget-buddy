@@ -1,4 +1,3 @@
-import { isEmpty } from 'lodash-es';
 import {
   nonempty,
   object,
@@ -24,6 +23,7 @@ import {
   getPrevMonthInterval,
 } from '~/shared/lib/dates';
 import { formatCurrency } from '~/shared/lib/money';
+import { isEmptyObj } from '~/shared/lib/objects';
 import {
   useResultRow,
   useResultRowIds,
@@ -471,7 +471,7 @@ export function useUserExpenseByCategories(userId: MaybeRefOrGetter<string>) {
       }
     >;
 
-    if (isEmpty(intervalExpenseResult.value)) {
+    if (isEmptyObj(intervalExpenseResult.value)) {
       return null;
     }
 
@@ -543,7 +543,7 @@ export function useUserTotalIncomeByDates(
       }
     >;
 
-    if (isEmpty(incomeByDatesResult.value)) {
+    if (isEmptyObj(incomeByDatesResult.value)) {
       return null;
     }
 
@@ -617,7 +617,7 @@ export function useUserTotalExpenseByDates(
       }
     >;
 
-    if (isEmpty(expenseByDatesResult.value)) {
+    if (isEmptyObj(expenseByDatesResult.value)) {
       return null;
     }
 

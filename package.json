@@ -11,7 +11,8 @@
     "test": "vitest",
     "cy:open": "cypress open",
     "e2e:chrome": "cypress run --browser chrome",
-    "prepare": "husky"
+    "prepare": "husky",
+    "knip": "knip"
   },
   "dependencies": {
     "@primeuix/utils": "^0.6.0",
@@ -21,7 +22,6 @@
     "chart.js": "^4.5.0",
     "currency-codes": "^2.2.0",
     "currency-symbol-map": "^5.1.0",
-    "lodash-es": "^4.17.21",
     "lucide-vue-next": "^0.511.0",
     "primevue": "^4.3.5",
     "radix-vue": "^1.9.17",
@@ -35,7 +35,6 @@
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@testing-library/cypress": "^10.0.3",
-    "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.15.24",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
@@ -48,6 +47,7 @@
     "eslint-plugin-vue": "^10.1.0",
     "globals": "^16.2.0",
     "husky": "^9.1.7",
+    "knip": "^5.64.1",
     "lint-staged": "^16.1.2",
     "rollup-plugin-visualizer": "^6.0.3",
     "sass-embedded": "^1.89.0",

@@ -1,5 +1,42 @@
-# Vue 3 + TypeScript + Vite
+# Budget Buddy
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Budget Buddy is a simple personal finance dashboard I built to sharpen my
+portfolio. It’s also my very first project with Vue.js, so I used it as a
+playground to learn the framework while experimenting with local-first data.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+  <img alt="home page" src="docs/home.png" width="200">
+  <img alt="settings page" src="docs/settings.png" width="200">
+</div>
+
+## Features
+
+- Dashboard overview: total income, expense, balance
+- Transactions management
+- Transactions filtering and sorting
+- Categories: predefined categories and ability to add custom categories with
+  icons/color
+- Multi-currency support using [exchangerate.host](https://exchangerate.host/) API and ability to add custom
+  currencies
+- Wallets management
+- Multi-users support
+- Local-first storage
+- Data visualization: spending overview by categories and line graph of
+  income/expense over time
+- Dark mode
+
+## Technologies
+
+- Frontend: Vue.js, Typescript, Tinybase, Radix Vue, Chart.js, Tanstack Query
+- Testing: Vitest, Cypress
+- Code quality: Eslint
+
+## Development
+
+Add exchangerate.host access key to .env.
+
+Run the development servers for frontend:
+
+```bash
+pnpm dev
+```

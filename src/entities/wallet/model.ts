@@ -662,12 +662,9 @@ export function useUserWalletsQuery<
   );
   watch(
     () => toValue(userId),
-    (newUserId, _, onCleanup) => {
+    (newUserId) => {
       settledQuery.value = setUserWalletsQuery(queries, newUserId, {
         currency: true,
-      });
-      onCleanup(() => {
-        queries.delQueryDefinition(settledQuery.value.queryId);
       });
     }
   );

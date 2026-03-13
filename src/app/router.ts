@@ -7,7 +7,7 @@ const SettingsPage = () =>
   import('~/pages/settings').then((module) => module.SettingsPage);
 
 export const router = createRouter({
-  history: createWebHistory(process.env.VITE_BASE_URL ?? '/'),
+  history: createWebHistory('/budget-buddy/'),
   routes: [
     {
       path: '/',

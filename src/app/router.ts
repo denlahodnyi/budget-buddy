@@ -7,7 +7,7 @@ const SettingsPage = () =>
   import('~/pages/settings').then((module) => module.SettingsPage);
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.VITE_BASE_URL ?? '/'),
   routes: [
     {
       path: '/',

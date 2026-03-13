@@ -4,6 +4,8 @@ Budget Buddy is a simple personal finance dashboard I built to sharpen my
 portfolio. It’s also my very first project with Vue.js, so I used it as a
 playground to learn the framework while experimenting with local-first data.
 
+[Demo](https://denlahodnyi.github.io/budget-buddy/)
+
 <div style="display:flex;flex-wrap:wrap;gap:10px">
   <img alt="home page" src="docs/home.png" width="350">
   <img alt="settings page" src="docs/settings.png" width="359">

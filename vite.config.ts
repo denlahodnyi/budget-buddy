@@ -6,7 +6,10 @@ import vue from '@vitejs/plugin-vue';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/budget-buddy/',
+  base:
+    process.env.NODE_ENV === 'production'
+      ? 'https://denlahodnyi.github.io/budget-buddy/'
+      : '/',
   build: {
     sourcemap: true,
   },

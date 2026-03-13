@@ -6,6 +6,7 @@ import vue from '@vitejs/plugin-vue';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE_URL ?? '/',
   build: {
     sourcemap: true,
   },
@@ -36,7 +37,7 @@ export default defineConfig({
                 const partialsDir = url.replace('@globals', '');
                 return new URL(
                   `./src/shared/styles/globals${partialsDir}`,
-                  import.meta.url
+                  import.meta.url,
                 );
               }
               return null;

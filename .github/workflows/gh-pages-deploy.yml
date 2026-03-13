@@ -46,6 +46,7 @@ jobs:
         run: pnpm build
         env:
           VITE_EXCHANGERATE_ACCESS_KEY: ${{ secrets.VITE_EXCHANGERATE_ACCESS_KEY }}
+          VITE_BASE_URL: /budget-buddy/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

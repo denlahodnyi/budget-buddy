@@ -42,3 +42,17 @@ Run the development servers for frontend:
 ```bash
 pnpm dev
 ```
+
+## Tests
+
+### E2E
+
+```bash
+pnpm dev:unmocked
+```
+
+```bash
+pnpm cy:open
+# or
+pnpm e2e:chrome
+```

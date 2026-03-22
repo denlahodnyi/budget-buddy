@@ -16,7 +16,6 @@ import {
   useUserTotalExpenseByDates,
   useUserTotalIncomeByDates,
 } from '~/entities/wallet';
-import { getDatesInterval } from '~/shared/lib/dates';
 import ChartDatesFilterDropdown, {
   type FilterValue,
 } from './ChartDatesFilterDropdown.vue';
@@ -25,12 +24,8 @@ Chart.register(LineElement, PointElement, LinearScale, CategoryScale);
 
 const userId = useCurrentUserId();
 const selectedDatesFilter = ref<FilterValue>('30d');
-const datesInterval = computed(() => {
-  const [start, end] = getDatesInterval(selectedDatesFilter.value);
-  return { startDate: start.getTime(), endDate: end.getTime() };
-});
-const incomeDataRef = useUserTotalIncomeByDates(userId, datesInterval);
-const expenseDataRef = useUserTotalExpenseByDates(userId, datesInterval);
+const incomeDataRef = useUserTotalIncomeByDates(userId, selectedDatesFilter);
+const expenseDataRef = useUserTotalExpenseByDates(userId, selectedDatesFilter);
 const expenseColorKeeper = useTemplateRef('expense-color-holder');
 const incomeColorKeeper = useTemplateRef('income-color-holder');
 
@@ -43,9 +38,7 @@ const labels = computed(() => {
     ...(incomeData || []).map((d) => d.date),
     ...(expenseData || []).map((d) => d.date),
   ];
-  const sortedUniqueLabels = Array.from(new Set(labels)).sort((a, b) =>
-    a > b ? 1 : -1
-  );
+  const sortedUniqueLabels = Array.from(new Set(labels)).sort((a, b) => a - b);
   return sortedUniqueLabels;
 });
 
@@ -85,7 +78,7 @@ const chartData = computed<ChartData<'line', DatasetDataItem[], unknown>>(
         },
       ],
     };
-  }
+  },
 );
 const chartOptions: ChartProps<'line'>['options'] = {
   datasets: {
@@ -106,7 +99,7 @@ const chartOptions: ChartProps<'line'>['options'] = {
         callback(tickValue, index, ticks) {
           if (index !== 0 && index !== ticks.length - 1) return;
           return formatTimestamp(
-            this.getLabelForValue(tickValue as number) as unknown as number
+            this.getLabelForValue(tickValue as number) as unknown as number,
           );
         },
       },
@@ -173,7 +166,7 @@ function formatTimestamp(date: number) {
     </div>
     <div v-if="incomeDataRef || expenseDataRef" class="chart">
       <Line
-        :data="chartData as unknown as ChartData<'line', (number)[], unknown>"
+        :data="chartData as unknown as ChartData<'line', number[], unknown>"
         :options="chartOptions"
       />
     </div>

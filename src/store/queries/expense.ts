@@ -24,7 +24,7 @@ export function setTotalExpenseByWalletQuery(
       where('walletId', walletId);
       where('type', TRANSACTION_TYPES.EXPENSE);
       group('amount', 'sum').as(
-        'totalExpense' satisfies keyof TotalExpenseByWalletQueryResult
+        'totalExpense' satisfies keyof TotalExpenseByWalletQueryResult,
       );
     },
   }))(queries);
@@ -65,7 +65,7 @@ export function setUserExpenseQuery(
         where((getCell) => getCell('createdAt')! <= filterBy.endDate!);
       }
       group('amount', 'sum').as(
-        'totalExpense' satisfies keyof UserExpenseQueryResult
+        'totalExpense' satisfies keyof UserExpenseQueryResult,
       );
       join('wallets', 'walletId');
       join('currencies', 'wallets', 'currencyId').as('currency');
@@ -93,7 +93,7 @@ export function setUserExpenseByDateQuery(
   ...keys: QueryKeys
 ) {
   return createQuerySetter<StoreSchema, 'transactions'>('transactions', () => ({
-    queryKeys: [setUserExpenseQuery.name, userId, filterBy, ...keys],
+    queryKeys: [setUserExpenseByDateQuery.name, userId, filterBy, ...keys],
     queryDefinition: ({ select, where, group, join }) => {
       select('amount');
       select('walletId');
@@ -117,7 +117,7 @@ export function setUserExpenseByDateQuery(
         where((getCell) => getCell('createdAt')! <= filterBy.endDate!);
       }
       group('amount', 'sum').as(
-        'totalExpense' satisfies keyof UserExpenseByDateQueryResult
+        'totalExpense' satisfies keyof UserExpenseByDateQueryResult,
       );
       join('wallets', 'walletId');
       join('currencies', 'wallets', 'currencyId').as('currency');

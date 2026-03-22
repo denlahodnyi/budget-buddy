@@ -6,7 +6,7 @@ function setEndOfDay(date: Date) {
     23,
     59,
     59,
-    999
+    999,
   );
 }
 
@@ -31,7 +31,7 @@ export function getCurrentMonthInterval() {
 export function getPrevMonthInterval() {
   const now = new Date();
   const start = setStartOfDay(
-    new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    new Date(now.getFullYear(), now.getMonth() - 1, 1),
   );
   const end = setEndOfDay(new Date(now.getFullYear(), now.getMonth(), 0));
   return [start, end];
@@ -40,17 +40,17 @@ export function getPrevMonthInterval() {
 export function getLastNMonthsInterval(n: number) {
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth() - n, 1);
-  return [start, now];
+  return [start, setEndOfDay(now)];
 }
 
 export function getLastNDaysInterval(n: number) {
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - n);
-  return [start, now];
+  return [start, setEndOfDay(now)];
 }
 
 export function getDatesInterval(
-  interval: '3d' | '7d' | '30d' | '90d' | '1m' | '<1m' | '1y'
+  interval: '3d' | '7d' | '30d' | '90d' | '1m' | '<1m' | '1y',
 ) {
   switch (interval) {
     case '3d': {
